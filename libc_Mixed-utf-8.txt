@@ -1942,48 +1942,61 @@ C语言支持两种通过变量在程序中分配内存的方法。
 	那么，MALLOC_CHECK_和用-lmcheck链接有什么不同呢？MALLOC_CHECK_和-lmcheck完全没有关系。-lmcheck支持向后兼容。MALLOC_CHECK_和-lmcheck都可以发现相同的bug，但使用MALLOC_CHECK_不必重新编译程序。
 
 3.2.2.10 Memory Allocation Hooks
+3.2.2.10 内存分配钩子
 ................................
 
 	The GNU C library lets you modify the behavior of `malloc', `realloc', and `free' by specifying appropriate hook functions.  You can use these hooks to help you debug programs that use dynamic memory allocation, for example. 
+	GNU C库允许通过制定特定的回调函数来改变malloc,realloc和free的行为。你可以使用这些方法来定位问题。
 
 	The hook variables are declared in `malloc.h'.  
+	这些钩子变量在malloc.h中声明。
 
 	-- Variable: __malloc_hook
 		The value of this variable is a pointer to the function that `malloc' uses whenever it is called.  You should define this function to look like `malloc'; that is, like:
+		此变量是一个指向malloc函数使用的回调函数。类似malloc应该像如下定义函数：
 
           void *FUNCTION (size_t SIZE, const void *CALLER)
 
 		The value of CALLER is the return address found on the stack when the `malloc' function was called.  This value allows you to trace the memory consumption of the program.
+		调用者的值是在栈上，是在malloc被调用的时候的返回地址。此值允许跟踪消耗地址的程序。
 
 	-- Variable: __realloc_hook
 		The value of this variable is a pointer to function that `realloc' uses whenever it is called.  You should define this function to look like `realloc'; that is, like:
+		此变量是一个指向realloc函数使用的回调函数。类似realloc应该像如下定义函数：
 
           void *FUNCTION (void *PTR, size_t SIZE, const void *CALLER)
 
 		The value of CALLER is the return address found on the stack when the `realloc' function was called.  This value allows you to trace the memory consumption of the program.
+		调用者的值是在栈上，是在realloc被调用的时候的返回地址。此值允许跟踪消耗地址的程序。
 
 	-- Variable: __free_hook
 		The value of this variable is a pointer to function that `free' uses whenever it is called.  You should define this function to look like `free'; that is, like:
+		此变量是一个指向free函数使用的回调函数。类似free应该像如下定义函数：
 
           void FUNCTION (void *PTR, const void *CALLER)
 
 		The value of CALLER is the return address found on the stack when the `free' function was called.  This value allows you to trace the memory consumption of the program.
+		调用者的值是在栈上，是在free被调用的时候的返回地址。此值允许跟踪消耗地址的程序。
 
 	-- Variable: __memalign_hook
 		The value of this variable is a pointer to function that `memalign' uses whenever it is called.  You should define this function to look like `memalign'; that is, like:
+		此变量是一个指向memalign函数使用的回调函数。类似memalign应该像如下定义函数：
 
           void *FUNCTION (size_t ALIGNMENT, size_t SIZE, const void *CALLER)
 
 		The value of CALLER is the return address found on the stack when the `memalign' function was called.  This value allows you to trace the memory consumption of the program.
+		调用者的值是在栈上，是在free被调用的时候的返回地址。此值允许跟踪消耗地址的程序。
 
 	You must make sure that the function you install as a hook for one of these functions does not call that function recursively without restoring the old value of the hook first!  Otherwise, your program will get stuck in an infinite recursion.  Before calling the function recursively, one should make sure to restore all the hooks to their previous value.  When coming back from the recursive call, all the hooks should be resaved since a hook might modify itself.
+	要保证在给这些函数注册回调的时候不会递归执行。否则，程序将会无限循环下去。在递归调用此函数，要保证每一层的回调函数可以恢复。当从递归调用返回的时候，所有的回调都要再次保存，因为回调函数可能会修改其自身。
 
 	-- Variable: __malloc_initialize_hook
 		The value of this variable is a pointer to a function that is called once when the malloc implementation is initialized.  This is a weak variable, so it can be overridden in the application with a definition like the following:
-
+		此变量的值是在malloc初始化的时候执行的回调函数。这是一个“弱”变量，可能被应用程序类似如下覆盖：
           void (*__MALLOC_INITIALIZE_HOOK) (void) = my_init_hook;
 
 		An issue to look out for is the time at which the malloc hook functions can be safely installed.  If the hook functions call the malloc-related functions recursively, it is necessary that malloc has already properly initialized itself at the time when `__malloc_hook' etc. is assigned to.  On the other hand, if the hook functions provide a complete malloc implementation of their own, it is vital that the hooks are assigned to _before_ the very first `malloc' call has completed,because otherwise a chunk obtained from the ordinary, un-hooked malloc may later be handed to `__free_hook', for example.
+		需要注意的一点是要注意malloc的回调函数可以安全的注册的时刻。如果回调函数也递归调用malloc相关的函数，那么malloc是否已经被合适的初始化。 另外一方面，如果回调函数提供了一个自己的malloc，那么在第一次malloc调用前完成回调的注册就非常重要。
 
 		In both cases, the problem can be solved by setting up the hooks from within a user-defined function pointed to by `__malloc_initialize_hook'--then the hooks will be set up safely at the right time.
 
