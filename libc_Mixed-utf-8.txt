@@ -1597,7 +1597,7 @@ C语言支持两种通过变量在程序中分配内存的方法。
 	C语言不支持以变量形式动态分配内存; 没有“动态”的存储类型，并且从来也没有一个变量保存在动态存储空间内。获取动态存储空间的唯一方法是通过系统调用（通常是一个GNU C函数调用），并且引用动态空间地址也仅能通过指针。由于其使用并不方便，并且动态分配内存需要更多的计算时间，通常在没有办法使用静态变量或者自动变量无法使用的时候，程序员才会使用动态内存分配。
 
 	For example, if you want to allocate dynamically some space to hold a `struct foobar', you cannot declare a variable of type `struct foobar' whose contents are the dynamically allocated space.  But you can declare a variable of pointer type `struct foobar *' and assign it the address of the space.  Then you can use the operators `*' and `->' on this pointer variable to refer to the contents of the space:
-	例如，如果你希望动态分配一些空间来保存“struct foobar”，你不能声明一个struct foobar的类型变量来保存存储来动态空间的内容。但你可以通过一个struct foobar的类型的指针来引用其内容的空间地址：
+	例如，如果希望动态分配一些空间来保存“struct foobar”，你不能声明一个struct foobar的类型变量来保存存储来动态空间的内容。但你可以通过一个struct foobar的类型的指针来引用其内容的空间地址：
 
      {
        struct foobar *ptr
@@ -1721,7 +1721,7 @@ C语言支持两种通过变量在程序中分配内存的方法。
      }
 
 	Occasionally, `free' can actually return memory to the operating system and make the process smaller.  Usually, all it can do is allow a later call to `malloc' to reuse the space.  In the meantime, the space remains in your program as part of a free-list used internally by `malloc'.
-	有些时候free真正返回给操作系统的内存并使进程更小一些；通常，所有应用能做的仅仅是允许一个迟调用来分配内存重用空间。同时你的应用程序的空间中内部保留了部分malloc控制的空闲列表。
+	有些时候free真正返回给操作系统的内存并使进程更小一些；通常，所有应用能做的仅仅是允许一个晚一些的调用来分配内存重用空间。同时你的应用程序的空间中内部保留了部分malloc控制的空闲列表。
 
 	There is no point in freeing blocks at the end of a program, because all of the program's space is given back to the system when the process terminates.
 	在程序末端没有空闲内存块。在进程结束的时候所有程序的内存空间都将归还操作系统。
@@ -1933,11 +1933,13 @@ C语言支持两种通过变量在程序中分配内存的方法。
 			内存已经被释放过。
 
 	Another possibility to check for and guard against bugs in the use of `malloc', `realloc' and `free' is to set the environment variable `MALLOC_CHECK_'.  When `MALLOC_CHECK_' is set, a special (less efficient) implementation is used which is designed to be tolerant against simple errors, such as double calls of `free' with the same argument, or overruns of a single byte (off-by-one bugs).  Not all such errors can be protected against, however, and memory leaks can result. If `MALLOC_CHECK_' is set to `0', any detected heap corruption is silently ignored; if set to `1', a diagnostic is printed on `stderr'; if set to `2', `abort' is called immediately.  This can be useful because otherwise a crash may happen much later, and the true cause for the problem is then very hard to track down.
-	另外的使用malloc、realloc和free来检查和保护内存的方法是设定环境变量MALLOC_CHECK_。当此变量设定，
+	另外的使用malloc、realloc和free来检查和保护内存的方法是设定环境变量MALLOC_CHECK_。当此变量设定，特定设计的实现（牺牲效率）可以容忍简单错误，例如对于两次对一个变量使用free释放，或者滥用单字节（边界错误）。并不是所有的错误都能够保护，例如，内存泄漏就无法避免。如果MALLOC_CHECK_被设为1，在stderr会打印出诊断信息；如果设定为2，abort会立即生效。这通常非常有效，不然程序崩溃会大大延迟，并且出错的原因也非常难以跟踪。
 
 	There is one problem with `MALLOC_CHECK_': in SUID or SGID binaries it could possibly be exploited since diverging from the normal programs behavior it now writes something to the standard error descriptor. Therefore the use of `MALLOC_CHECK_' is disabled by default for SUID and SGID binaries.  It can be enabled again by the system administrator by adding a file `/etc/suid-debug' (the content is not important it could be empty).
+	MALLOC_CHECK_还是有一个问题。在SUID和SGID二进制程序中，这可能和正常程序的行为不一致，现在它向标准错误描述符写了内容。因此，对于SUID和SGID的二进制程序，MALLOC_CHECK_默认是关闭的。通过增加/etc/suid-debug（文件内容不重要）可以打开此功能。
 
 	So, what's the difference between using `MALLOC_CHECK_' and linking with `-lmcheck'?  `MALLOC_CHECK_' is orthogonal with respect to `-lmcheck'.  `-lmcheck' has been added for backward compatibility. Both `MALLOC_CHECK_' and `-lmcheck' should uncover the same bugs - but using `MALLOC_CHECK_' you don't need to recompile your application.
+	那么，MALLOC_CHECK_和用-lmcheck链接有什么不同呢？MALLOC_CHECK_和-lmcheck完全没有关系。-lmcheck支持向后兼容。MALLOC_CHECK_和-lmcheck都可以发现相同的bug，但使用MALLOC_CHECK_不必重新编译程序。
 
 3.2.2.10 Memory Allocation Hooks
 ................................
