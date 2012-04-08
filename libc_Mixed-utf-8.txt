@@ -1996,11 +1996,13 @@ C语言支持两种通过变量在程序中分配内存的方法。
           void (*__MALLOC_INITIALIZE_HOOK) (void) = my_init_hook;
 
 		An issue to look out for is the time at which the malloc hook functions can be safely installed.  If the hook functions call the malloc-related functions recursively, it is necessary that malloc has already properly initialized itself at the time when `__malloc_hook' etc. is assigned to.  On the other hand, if the hook functions provide a complete malloc implementation of their own, it is vital that the hooks are assigned to _before_ the very first `malloc' call has completed,because otherwise a chunk obtained from the ordinary, un-hooked malloc may later be handed to `__free_hook', for example.
-		需要注意的一点是要注意malloc的回调函数可以安全的注册的时刻。如果回调函数也递归调用malloc相关的函数，那么malloc是否已经被合适的初始化。 另外一方面，如果回调函数提供了一个自己的malloc，那么在第一次malloc调用前完成回调的注册就非常重要。
+		需要注意的一点是malloc的回调函数可以安全的注册的时刻。如果回调函数也递归调用malloc相关的函数，那么malloc是否已经被合适的初始化。 另外一方面，如果回调函数提供了一个自己的malloc，那么在第一次malloc调用前完成回调的注册就至关重要。
 
 		In both cases, the problem can be solved by setting up the hooks from within a user-defined function pointed to by `__malloc_initialize_hook'--then the hooks will be set up safely at the right time.
+		在这两种情况，通过用__malloc_initialize_hook指向用户定义的函数就可以解决，这个回调可以在适当的时候安全注册。
 
 		Here is an example showing how to use `__malloc_hook' and `__free_hook' properly.  It installs a function that prints out information every time `malloc' or `free' is called.  We just assume here that `realloc' and `memalign' are not used in our program.
+		如下是一个如何正确使用__malloc_hook和__free_hook的例子。此例子注册了一个回调，在每次调用malloc和free的时候都会打印信息。我们假设realloc和memalign在这个程序中并不使用。
 
      /* Prototypes for __malloc_hook, __free_hook */
      #include <malloc.h>
@@ -2066,6 +2068,7 @@ C语言支持两种通过变量在程序中分配内存的方法。
      }
 
 	The `mcheck' function (*note Heap Consistency Checking::) works by installing such hooks.
+	mcheck函数（参见堆栈一致性检查）将注册这些回调。
 
 3.2.2.11 Statistics for Memory Allocation with `malloc'
 .......................................................
