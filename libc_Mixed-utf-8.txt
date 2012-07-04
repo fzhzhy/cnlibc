@@ -2072,44 +2072,58 @@ C语言支持两种通过变量在程序中分配内存的方法。
 
 3.2.2.11 Statistics for Memory Allocation with `malloc'
 .......................................................
+3.2.2.11 malloc内存分配的统计
 
 	You can get information about dynamic memory allocation by calling the `mallinfo' function.  This function and its associated data type are declared in `malloc.h'; they are an extension of the standard SVID/XPG version.  
+	你可以通过调用mallinfo来获取动态内存分配的信息。此函数及其涉及到的数据结构在malloc.h中声明，这是标准SVID/XPG的扩展。
 
 	-- Data Type: struct mallinfo
 		This structure type is used to return information about the dynamic memory allocator.  It contains the following members:
+		此数据类型用来返回动态内存分配器的信息。包含如下成员：
 
 		`int arena'
 			This is the total size of memory allocated with `sbrk' by `malloc', in bytes.
+			这是malloc调用sbrk分配的内存的总大小。
 
 		`int ordblks'
 			This is the number of chunks not in use.  (The memory allocator internally gets chunks of memory from the operating system, and then carves them up to satisfy individual `malloc' requests; see *note Efficiency and Malloc::.)
+			此为未使用内存块的数量。（内存分配器内部从操作系统获取内存块，然后供malloc申请使用；参见Efficiency and Malloc
 
 		`int smblks'
 			This field is unused.
+			此域未使用。
 
 		`int hblks'
 			This is the total number of chunks allocated with `mmap'.
+			mmap分配的总块数。
 
 		`int hblkhd'
 			This is the total size of memory allocated with `mmap', in bytes.
+			mmap分配的内存，以字节计算
 
 		`int usmblks'
 			This field is unused.
+			此域未使用
 
 		`int fsmblks'
 			This field is unused.
+			此域未使用。
 
 		`int uordblks'
 			This is the total size of memory occupied by chunks handed out by `malloc'.
+			malloc分发的占用的内存块儿大小
 
 		`int fordblks'
 			This is the total size of memory occupied by free (not in use) chunks.
+			未使用内存占用的内存块的大小
 
 		`int keepcost'
 			This is the size of the top-most releasable chunk that normally borders the end of the heap (i.e., the high end of the virtual address space's data segment).
+			这部分通常是紧挨着堆的底部的最可能（最有理由释放的）内存块（例如，虚拟地址空间的数据高端区）
 
 	-- Function: struct mallinfo mallinfo (void)
 		This function returns information about the current dynamic memory usage in a structure of type `struct mallinfo'.
+		此函数通过数据结构mallinfo来返回当前使用的动态内存信息。
 
 3.2.2.12 Summary of `malloc'-Related Functions
 ..............................................
