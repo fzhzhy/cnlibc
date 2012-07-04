@@ -2126,48 +2126,63 @@ C语言支持两种通过变量在程序中分配内存的方法。
 		此函数通过数据结构mallinfo来返回当前使用的动态内存信息。
 
 3.2.2.12 Summary of `malloc'-Related Functions
+3.2.2.11 malloc相关函数的小结
 ..............................................
 
 Here is a summary of the functions that work with `malloc':
+如下是使用malloc函数的小结
 
 	`void *malloc (size_t SIZE)'
 		Allocate a block of SIZE bytes.  *Note Basic Allocation::.
+		分配SIZE字节的内存块。 *参见Basic Allocation::
 
 	`void free (void *ADDR)'
 		Free a block previously allocated by `malloc'.  *Note Freeing after Malloc::.
+		释放之前使用malloc分配的内存块。 *参考 Freeing after Malloc::
 
 	`void *realloc (void *ADDR, size_t SIZE)'
 		Make a block previously allocated by `malloc' larger or smaller, possibly by copying it to a new location.  *Note Changing Block Size::.
+		扩大或者缩小之前malloc分配的内存块，可能将其拷贝到新的地址。
 
 	`void *calloc (size_t COUNT, size_t ELTSIZE)'
 		Allocate a block of COUNT * ELTSIZE bytes using `malloc', and set its contents to zero.  *Note Allocating Cleared Space::.
+		分配，COUNT*ELSIZE字节的内存块，并将其内容置为零。 *参见 Allocating Cleared Space::
 
 	`void *valloc (size_t SIZE)'
 		Allocate a block of SIZE bytes, starting on a page boundary. *Note Aligned Memory Blocks::.
+		分配SIZE字节的内存块，从一个页边界开始。 *参见对齐的内存块::
 
 	`void *memalign (size_t SIZE, size_t BOUNDARY)'
 		Allocate a block of SIZE bytes, starting on an address that is a multiple of BOUNDARY.  *Note Aligned Memory Blocks::.
+		分配SIZE字节的内存块，从一个多边界地址开始. *参考 Aligned Memory Blocks::
 
 	`int mallopt (int PARAM, int VALUE)'
 		Adjust a tunable parameter.  *Note Malloc Tunable Parameters::.
+		调整一个可调节的参数。 *参考 Malloc Tunable Parameters::
 
 	`int mcheck (void (*ABORTFN) (void))'
 		Tell `malloc' to perform occasional consistency checks on dynamically allocated memory, and to call ABORTFN when an inconsistency is found.  *Note Heap Consistency Checking::.
+		让malloc临时在动态分配的内存上执行完整性检查，同时调用ABORTFN来处理不一致性的问题。 *参考 Heap Consistency Checking::
 
 	`void *(*__malloc_hook) (size_t SIZE, const void *CALLER)'
 		A pointer to a function that `malloc' uses whenever it is called.
+		指向malloc调用的回调函数。
 
 	`void *(*__realloc_hook) (void *PTR, size_t SIZE, const void *CALLER)'
 		A pointer to a function that `realloc' uses whenever it is called.
+		指向realloc调用的回调函数。
 
 	`void (*__free_hook) (void *PTR, const void *CALLER)'
 		A pointer to a function that `free' uses whenever it is called.
+		指向free调用的回调函数。
 
 	`void (*__memalign_hook) (size_t SIZE, size_t ALIGNMENT, const void *CALLER)'
 		A pointer to a function that `memalign' uses whenever it is called.
+		指向memalign调用的回调函数。
 
 	`struct mallinfo mallinfo (void)'
 		Return information about the current dynamic memory usage.  *Note Statistics of Malloc::.
+		返回当前动态内存使用情况的信息。 *参考 Statistics of Malloc::
 
 3.2.3 Allocation Debugging
 --------------------------
