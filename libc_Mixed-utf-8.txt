@@ -2185,28 +2185,38 @@ Here is a summary of the functions that work with `malloc':
 		返回当前动态内存使用情况的信息。 *参考 Statistics of Malloc::
 
 3.2.3 Allocation Debugging
+3.2.3 调试分配
 --------------------------
 
 	A complicated task when programming with languages which do not use garbage collected dynamic memory allocation is to find memory leaks. Long running programs must assure that dynamically allocated objects are freed at the end of their lifetime.  If this does not happen the system runs out of memory, sooner or later.
+	采用不使用动态内存垃圾回机制的语言后，查找内存泄露是一个非常复杂的工作。长期运行的程序要保证动态内存的在其生命周期结束之前能够释放。如果无法及时释放，系统迟早会把内存耗光。
 
 	The `malloc' implementation in the GNU C library provides some simple means to detect such leaks and obtain some information to find the location.  To do this the application must be started in a special mode which is enabled by an environment variable.  There are no speed penalties for the program if the debugging mode is not enabled.
+	GNU C库的malloc实现提供了一些简单的方法来检测内存泄漏并获得一些定位的信息。要这样做，应用程序必须通过修改环境变量来使能一种特殊模式。这种模式不会给程序带来速度上的损耗。
 
 3.2.3.1 How to install the tracing functionality
+3.2.3.1 如何安装tracing功能
 ................................................
 
 	-- Function: void mtrace (void)
 		When the `mtrace' function is called it looks for an environment variable named `MALLOC_TRACE'.  This variable is supposed to contain a valid file name.  The user must have write access.  If the file already exists it is truncated.  If the environment variable is not set or it does not name a valid file which can be opened for writing nothing is done.  The behavior of `malloc' etc. is not changed.  For obvious reasons this also happens if the application is installed with the SUID or SGID bit set.
+		当mtrace函数调用的时候，它将查找叫做MALLOC_TRACE的环境变量。此变量应当包含一个有效的文件名。用户有写权限。如果此文件存在，其内容将被截取。如果环境变量没有设定，或者文件名无效无法写入内容。malloc等函数的行为将不会变化。由于明显的原因，当应用程序设置了SUID或者SGID效果相同。
 
 		If the named file is successfully opened, `mtrace' installs special handlers for the functions `malloc', `realloc', and `free' (*note Hooks for Malloc::).  From then on, all uses of these functions are traced and protocolled into the file.  There is now of course a speed penalty for all calls to the traced functions so tracing should not be enabled during normal use.
+		如果此文件成功打开，mtrace为malloc,realloc和free 安装了特定的回调函数（*参考 Hook for Malloc::)。此后，所有此函数的使用都可以被追踪同时按照协议写入文件。从现在开始，由于需要跟踪所有调用的函数，速度会有影响。因此正常使用的时候函数追踪功能不能打开。
 
 		This function is a GNU extension and generally not available on other systems.  The prototype can be found in `mcheck.h'.
+		此函数是一个GNU扩展通常在其他系统中是不支持的。函数原型在"mcheck.h"中。
 
 	-- Function: void muntrace (void)
 		The `muntrace' function can be called after `mtrace' was used to enable tracing the `malloc' calls.  If no (successful) call of `mtrace' was made `muntrace' does nothing.
+		muntrace函数能够在mtrace调用后，用来使能跟踪malloc调用功能。如果mtrace没有调用（或者调用失败），muntrace则没有功能。
 
 		Otherwise it deinstalls the handlers for `malloc', `realloc', and `free' and then closes the protocol file.  No calls are protocolled anymore and the program runs again at full speed.
+		然后其为malloc,realloc和free函数取消注册的回调函数并关闭文件。没有函数再访问此文件并且程序又再全速运行。
 		
 		This function is a GNU extension and generally not available on other systems.  The prototype can be found in `mcheck.h'.
+		此函数是一个GNU扩展通常在其他系统中是不支持的。函数原型在"mcheck.h"中
 
 3.2.3.2 Example program excerpts
 ................................
