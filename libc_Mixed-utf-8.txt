@@ -2219,9 +2219,11 @@ Here is a summary of the functions that work with `malloc':
 		此函数是一个GNU扩展通常在其他系统中是不支持的。函数原型在"mcheck.h"中
 
 3.2.3.2 Example program excerpts
+3.2.3.2 程序小样节选
 ................................
 
 	Even though the tracing functionality does not influence the runtime behavior of the program it is not a good idea to call `mtrace' in all programs.  Just imagine that you debug a program using `mtrace' and all other programs used in the debugging session also trace their `malloc' calls.  The output file would be the same for all programs and thus is unusable.  Therefore one should call `mtrace' only if compiled for debugging.  A program could therefore start like this:
+	尽管跟踪功能并不影响程序运行时的行为，但在所有程序中都调用mtrace并不是一个好注意。想象一下当你使用mtrace来跟踪程序并且在此调试进程中用到的其他程序的malloc调用也被同时跟踪。输出文件将和所有程序有关也就变得没有用处了。因此，程序仅能在调试时编译使用mtrace。程序可以像这样：
 
      #include <mcheck.h>
 
@@ -2235,13 +2237,16 @@ Here is a summary of the functions that work with `malloc':
      }
 
 	This is all what is needed if you want to trace the calls during the whole runtime of the program.  Alternatively you can stop the tracing at any time with a call to `muntrace'.  It is even possible to restart the tracing again with a new call to `mtrace'.  But this can cause unreliable results since there may be calls of the functions which are not called.  Please note that not only the application uses the traced functions, also libraries (including the C library itself) use these functions.
+	这样就可以满足在运行时跟踪调用。同时可以调用muntrace来结束跟踪。甚至可以调用mtrace来重新跟踪。但，这由于不能够跟踪到所有函数的调用，因此此方法并不是可靠。请注意并不是只有应用程序使用可跟踪函数集，库函数（包括C库函数本身）也都使用这些函数集。
 
 	This last point is also why it is no good idea to call `muntrace' before the program terminated.  The libraries are informed about the termination of the program only after the program returns from `main' or calls `exit' and so cannot free the memory they use before this time.
+	最后在程序结束前就调用muntrace并不是好的方法。
 
 	So the best thing one can do is to call `mtrace' as the very first function in the program and never call `muntrace'.  So the program traces almost all uses of the `malloc' functions (except those calls which are executed by constructors of the program or used libraries).
 
 3.2.3.3 Some more or less clever ideas
 ......................................
+3.2.3.3 一些好的想法
 
 	You know the situation.  The program is prepared for debugging and in all debugging sessions it runs well.  But once it is started without debugging the error shows up.  A typical example is a memory leak that becomes visible only when we turn off the debugging.  If you foresee such situations you can still win.  Simply use something equivalent to the following little program:
 
@@ -2277,6 +2282,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.3.4 Interpreting the traces
 ...............................
+3.2.3.4 翻译这些trace
 
 	If you take a look at the output it will look similar to this:
 
@@ -2335,6 +2341,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.4 Obstacks
 --------------
+3.2.4 Obstacks
 
 	An "obstack" is a pool of memory containing a stack of objects.  You can create any number of separate obstacks, and then allocate objects in specified obstacks.  Within each obstack, the last object allocated must always be the first one freed, but distinct obstacks are independent of each other.
 	
@@ -2342,6 +2349,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.4.1 Creating Obstacks
 .........................
+3.2.4.1 创建 Obstacks
 
 	The utilities for manipulating obstacks are declared in the header file `obstack.h'.  
 
@@ -2358,6 +2366,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.4.2 Preparing for Using Obstacks
 ....................................
+3.2.4.3 使用Obstacks的准备
 
 	Each source file in which you plan to use the obstack functions must include the header file `obstack.h', like this:
 
@@ -2402,6 +2411,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.4.3 Allocation in an Obstack
 ................................
+3.2.4.3 在Obstack中分配内存
 
 	The most direct way to allocate an object in an obstack is with `obstack_alloc', which is invoked almost like `malloc'.
 
@@ -2443,6 +2453,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.4.4 Freeing Objects in an Obstack
 .....................................
+3.2.4.4. 在一个Obstack中释放对象
 
 	To free an object allocated in an obstack, use the function `obstack_free'.  Since the obstack is a stack of objects, freeing one object automatically frees all other objects allocated more recently in the same obstack.
 
@@ -2457,6 +2468,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.4.5 Obstack Functions and Macros
 ....................................
+3.2.4.5 Obstack函数和宏
 
 	The interfaces for using obstacks may be defined either as functions or as macros, depending on the compiler.  The obstack facility works with all C compilers, including both ISO C and traditional C, but there are precautions you must take if you plan to use compilers other than GNU C.
 
@@ -2487,6 +2499,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.4.6 Growing Objects
 .......................
+3.2.4.6 增长的对象
 
 	Because memory in obstack chunks is used sequentially, it is possible to build up an object step by step, adding one or more bytes at a time to the end of the object.  With this technique, you do not need to know how much data you will put in the object until you come to the end of it.  We call this the technique of "growing objects".  The special functions for adding data to the growing object are described in this section.
 
@@ -2536,6 +2549,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.4.7 Extra Fast Growing Objects
 ..................................
+3.2.4.7 特别快速增长的对象
 
 	The usual functions for growing objects incur overhead for checking whether there is room for the new growth in the current chunk.  If you are frequently constructing objects in small steps of growth, this overhead can be significant.
 
@@ -2593,6 +2607,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.4.8 Status of an Obstack
 ............................
+3.2.4.8 一个Obstack的状态
 
 	Here are functions that provide information on the current status of allocation in an obstack.  You can use them to learn about an object while still growing it.
 
@@ -2611,6 +2626,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.4.9 Alignment of Data in Obstacks
 .....................................
+3.2.4.9 Obstack内的数据对齐
 
 	Each obstack has an "alignment boundary"; each object allocated in the obstack automatically starts on an address that is a multiple of the specified boundary.  By default, this boundary is aligned so that the object can hold any type of data.
 
@@ -2629,6 +2645,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.4.10 Obstack Chunks
 .......................
+3.2.4.10 Obstack块
 
 	Obstacks work by allocating space for themselves in large chunks, and then parceling out space in the chunks to satisfy your requests.  Chunks are normally 4096 bytes long unless you specify a different chunk size. The chunk size includes 8 bytes of overhead that are not actually used for storing objects.  Regardless of the specified size, longer chunks will be allocated when necessary for long objects.
 
@@ -2653,6 +2670,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.4.11 Summary of Obstack Functions
 .....................................
+3.2.4.11 Obstack函数集小结
 
 	Here is a summary of all the functions associated with obstacks.  Each takes the address of an obstack (`struct obstack *') as its first argument.
 
@@ -2712,6 +2730,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.5 Automatic Storage with Variable Size
 ------------------------------------------
+3.2.5 可变大小自动存储（待修订）
 
 	The function `alloca' supports a kind of half-dynamic allocation in which blocks are allocated dynamically but freed automatically.
 
@@ -2726,6 +2745,7 @@ Here is a summary of the functions that work with `malloc':
 
 3.2.5.1 `alloca' Example
 ........................
+3.2.5.1 alloca例子
 
 	As an example of the use of `alloca', here is a function that opens a file name made from concatenating two argument strings, and returns a file descriptor or minus one signifying failure:
 
@@ -2757,6 +2777,7 @@ other, more important advantages, and some disadvantages.
 
 3.2.5.2 Advantages of `alloca'
 ..............................
+3.2.5.2 alloca的优势
 
 	Here are the reasons why `alloca' may be preferable to `malloc':
 
@@ -2782,6 +2803,7 @@ other, more important advantages, and some disadvantages.
 
 3.2.5.3 Disadvantages of `alloca'
 .................................
+3.2.5.3 alloca的劣势
 
 	These are the disadvantages of `alloca' in comparison with `malloc':
 
@@ -2791,6 +2813,7 @@ other, more important advantages, and some disadvantages.
 
 3.2.5.4 GNU C Variable-Size Arrays
 ..................................
+3.2.5.4 GNU C 可变大小数组
 
 	In GNU C, you can replace most uses of `alloca' with an array of variable size.  Here is how `open2' would look then:
 
@@ -2811,6 +2834,7 @@ other, more important advantages, and some disadvantages.
 
 3.3 Resizing the Data Segment
 =============================
+3.3 数据段的重调
 
 	The symbols in this section are declared in `unistd.h'.
 
@@ -2840,6 +2864,7 @@ other, more important advantages, and some disadvantages.
 
 3.4 Locking Pages
 =================
+3.4 锁定页
 
 	You can tell the system to associate a particular virtual memory page with a real page frame and keep it that way -- i.e., cause the page to be paged in if it isn't already and mark it so it will never be paged out and consequently will never cause a page fault.  This is called "locking" a page.
 
@@ -2847,6 +2872,7 @@ other, more important advantages, and some disadvantages.
 
 3.4.1 Why Lock Pages
 --------------------
+3.4.1 为什么要锁定页
 
 	Because page faults cause paged out pages to be paged in transparently, a process rarely needs to be concerned about locking pages.  However, there are two reasons people sometimes are:
 
@@ -2866,6 +2892,7 @@ other, more important advantages, and some disadvantages.
 
 3.4.2 Locked Memory Details
 ---------------------------
+3.4.2 被锁的内存的细节
 
 	A memory lock is associated with a virtual page, not a real frame.  The paging rule is: If a frame backs at least one locked page, don't page it out.
 
@@ -2887,6 +2914,7 @@ other, more important advantages, and some disadvantages.
 
 3.4.3 Functions To Lock And Unlock Pages
 ----------------------------------------
+3.4.3 锁定和解锁页的函数集
 
 	The symbols in this section are declared in `sys/mman.h'.  These functions are defined by POSIX.1b, but their availability depends on your kernel.  If your kernel doesn't allow these functions, they exist but always fail.  They _are_ available with a Linux kernel.
 
@@ -2972,6 +3000,7 @@ other, more important advantages, and some disadvantages.
 
 4 Character Handling
 ********************
+4 字符处理
 
 Programs that work with characters and strings often need to classify a
 character--is it alphabetic, is it a digit, is it whitespace, and so
@@ -2990,6 +3019,7 @@ wide characters (*note Extended Char Intro::).
 
 4.1 Classification of Characters
 ================================
+4.1 字符的分类
 
 This section explains the library functions for classifying characters.
 For example, `isalpha' is the function to test for an alphabetic
@@ -3095,6 +3125,7 @@ instead of a real character.
 
 4.2 Case Conversion
 ===================
+4.2 大小写转换
 
 This section explains the library functions for performing conversions
 such as case mappings on characters.  For example, `toupper' converts
@@ -3138,6 +3169,7 @@ write `islower(c) ? toupper(c) : c' rather than just `toupper(c)'.
 
 4.3 Character class determination for wide characters
 =====================================================
+4.3 宽字符的字符集检测
 
 Amendment 1 to ISO C90 defines functions to classify wide characters.
 Although the original ISO C90 standard already defined the type
@@ -3361,6 +3393,7 @@ characters as well.
 
 4.4 Notes on using the wide character classes
 =============================================
+4.4 使用宽字符集的注意事项
 
 The first note is probably not astonishing but still occasionally a
 cause of problems.  The `iswXXX' functions can be implemented using
@@ -3418,6 +3451,7 @@ Therefore the above form of the function is probably not the final one.
 
 4.5 Mapping of wide characters.
 ===============================
+4.5 宽字符的映射
 
 The classification functions are also generalized by the ISO C
 standard.  Instead of just allowing the two standard mappings, a locale
@@ -3485,6 +3519,7 @@ to `towctrans' calls.
 
 5 String and Array Utilities
 ****************************
+5 字符串和数字工具集
 
 Operations on strings (or arrays of characters) are an important part of
 many programs.  The GNU C library provides an extensive set of string
@@ -3505,6 +3540,7 @@ typically highly optimized, your program may run faster too.
 
 5.1 Representation of Strings
 =============================
+5.1 字符串的表示法
 
 This section is a quick summary of string concepts for beginning C
 programmers.  It describes how character strings are represented in C
@@ -3605,6 +3641,7 @@ available.
 
 5.2 String and Array Conventions
 ================================
+5.2 字符串和数字的转换
 
 This chapter describes both functions that work on arbitrary arrays or
 blocks of memory, and functions that are specific to null-terminated
@@ -3654,6 +3691,7 @@ since the ISO C standard does not require such a choice of types the
 
 5.3 String Length
 =================
+5.3 字符串长度
 
 You can get the length of a string using the `strlen' function.  This
 function is declared in the header file `string.h'.  
@@ -3750,6 +3788,7 @@ function is declared in the header file `string.h'.
 
 5.4 Copying and Concatenation
 =============================
+5.4 拷贝和连接
 
 You can use the functions described in this section to copy the contents
 of strings and arrays, or to append the contents of one string to
@@ -4382,6 +4421,7 @@ The output produced by this program looks like:
 
 5.5 String/Array Comparison
 ===========================
+5.5 字符串/数组比较
 
 You can use the functions in this section to perform comparisons on the
 contents of strings and arrays.  As well as checking for equality, these
@@ -4601,6 +4641,7 @@ values and ordering may differ.)
 
 5.6 Collation Functions
 =======================
+5.6 排序函数集
 
 In some locales, the conventions for lexicographic ordering differ from
 the strict numeric ordering of character codes.  For example, in Spanish
@@ -4839,6 +4880,7 @@ wide character versions were introduced in Amendment 1 to ISO C90.
 
 5.7 Search Functions
 ====================
+5.7 搜索函数集
 
 This section describes library functions which perform various kinds of
 searching operations on strings and arrays.  These functions are
@@ -5093,6 +5135,7 @@ is optimized in a special way so that `strchr' actually is faster.
 
 5.7.1 Compatibility String Search Functions
 -------------------------------------------
+5.7.1 字符串搜索函数集的兼容性
 
  -- Function: char * index (const char *STRING, int C)
      `index' is another name for `strchr'; they are exactly the same.
@@ -5108,6 +5151,7 @@ is optimized in a special way so that `strchr' actually is faster.
 
 5.8 Finding Tokens in a String
 ==============================
+5.8 在一个字符串中查找标识
 
 It's fairly common for programs to have a need to do some simple kinds
 of lexical analysis and parsing, such as splitting a command string up
@@ -5373,6 +5417,7 @@ available for multibyte character strings.
 
 5.9 strfry
 ==========
+5.9 strfry
 
 The function below addresses the perennial programming quandary: "How do
 I take good data in string form and painlessly turn it into garbage?"
@@ -5396,6 +5441,7 @@ string data.
 
 5.10 Trivial Encryption
 =======================
+5.10 简单的加密
 
 The `memfrob' function converts an array of data to something
 unrecognizable and back again.  It is not encryption in its usual sense
@@ -5428,10 +5474,11 @@ Unlike Rot13, `memfrob' works on arbitrary binary data, not just text.
 
 5.11 Encode Binary Data
 =======================
+5.11 解码二进制数据
 
 To store or transfer binary data in environments which only support text
 one has to encode the binary data by mapping the input bytes to
-characters in the range allowed for storing or transfering.  SVID
+characters in the range allowed for storing or transferring.  SVID
 systems (and nowadays XPG compliant systems) provide minimal support for
 this task.
 
@@ -5536,6 +5583,7 @@ Generally, it is better to use one of these encodings.
 
 5.12 Argz and Envz Vectors
 ==========================
+5.12 Argz和Envz向量
 
 "argz vectors" are vectors of strings in a contiguous block of memory,
 each element separated from its neighbors by null-characters (`'\0'').
@@ -5546,6 +5594,7 @@ environment).
 
 5.12.1 Argz Functions
 ---------------------
+5.12.1 Argz函数集
 
 Each argz vector is represented by a pointer to the first element, of
 type `char *', and a size, of type `size_t', both of which can be
@@ -5680,6 +5729,7 @@ error occurs.
 
 5.12.2 Envz Functions
 ---------------------
+5.12.2 Envz 函数集
 
 Envz vectors are just argz vectors with additional constraints on the
 form of each element; as such, argz functions can also be used on them,
@@ -5742,6 +5792,7 @@ thus fail) have a return type of `error_t', and return either `0' or
 
 6 Character Set Handling
 ************************
+6 字符集处理
 
 Character sets used in the early days of computing had only six, seven,
 or eight bits for each character: there was never a case where more than
@@ -5754,6 +5805,7 @@ library to support multiple character sets.
 
 6.1 Introduction to Extended Characters
 =======================================
+6.1 扩展字符的介绍
 
 A variety of solutions is available to overcome the differences between
 character sets with a 1:1 relation between bytes and characters and
@@ -6010,6 +6062,7 @@ be no compatibility problems with other systems.
 
 6.2 Overview about Character Handling Functions
 ===============================================
+6.2 字符处理函数集的简介
 
 A Unix C library contains three different sets of functions in two
 families to handle character set conversion.  One of the function
@@ -6027,6 +6080,7 @@ to ISO C90.
 
 6.3 Restartable Multibyte Conversion Functions
 ==============================================
+6.3 可重启的多字节转换函数集
 
 The ISO C standard defines functions to convert strings from a
 multibyte representation to wide character strings.  There are a number
@@ -6057,6 +6111,7 @@ Generic Charset Conversion::).
 
 6.3.1 Selecting the conversion and its properties
 -------------------------------------------------
+6.3.1 选择转换及其属性
 
 We already said above that the currently selected locale for the
 `LC_CTYPE' category decides about the conversion that is performed by
@@ -6111,6 +6166,7 @@ a compile-time constant.
 
 6.3.2 Representing the state of the conversion
 ----------------------------------------------
+6.3.2 转换的状态的表现
 
 In the introduction of this chapter it was said that certain character
 sets use a "stateful" encoding.  That is, the encoded values depend in
@@ -6189,6 +6245,7 @@ a stateful encoding.
 
 6.3.3 Converting Single Characters
 ----------------------------------
+6.3.3 单个字符的转换
 
 The most fundamental of the conversion functions are those dealing with
 single characters.  Please note that this does not always mean single
@@ -6552,6 +6609,7 @@ problem.  This example is only provided for educational purposes.
 
 6.3.4 Converting Multibyte and Wide Character Strings
 -----------------------------------------------------
+6.3.4 转换多字节和宽字符字符串
 
 The functions described in the previous section only convert a single
 character at a time.  Most operations to be performed in real-world
