@@ -1,27 +1,51 @@
-This is Edition 0.11, last updated 2006-12-03, of `The GNU C Library Reference Manual', for Version 2.6 of the GNU C Library.
-此为0.11版本，更新于2006年12月3日。基于2.6版本的GNU C标准库参考手册。
+Main Menu
+*********
+主菜单
+
+This is Edition 0.11, last updated 2006-12-03, 
+of `The GNU C Library Reference Manual', for Version 
+2.6 of the GNU C Library.
+此为0.11版本，更新于2006年12月3日。基于2.6版本的GNU C标准库参
+考手册。
 
 1 Introduction
 --------------
 1 简介
 -----
 
-The C language provides no built-in facilities for performing such common operations as input/output, memory management, string manipulation, and the like.  Instead, these facilities are defined in a standard "library", which you compile and link with your programs.  
-C语言没有内置一些通用功能，例如输入/输出，内存管理，字符串操作等。这些都定义在标准库中，用户可以将其链接应用程序中。
+The C language provides no built-in facilities for performing such
+common operations as input/output, memory management, string
+manipulation, and the like.  Instead, these facilities are defined in a
+standard "library", which you compile and link with your programs.  
+C语言没有内置一些通用功能，例如输入/输出，内存管理，字符串操作等。这些都定义在标准库中，
+用户可以将其链接应用程序中。
 
-The GNU C library, described in this document, defines all of the library functions that are specified by the ISO C standard, as well as additional features specific to POSIX and other derivatives of the Unix operating system, and extensions specific to the GNU system.
-GNU C库定义了所有ISO C标准所定义的所有库函数和一些POSIX，UNIX的派生系统的特性以及GNU系统的扩展特性。
+The GNU C library, described in this document, defines all of the
+library functions that are specified by the ISO C standard, as well as 
+additional features specific to POSIX and other derivatives of the Unix
+operating system, and extensions specific to the GNU system.
+GNU C库定义了所有ISO C标准所定义的所有库函数和一些POSIX，UNIX的派生系统的特性以及
+GNU系统的扩展特性。
 
-The purpose of this manual is to tell you how to use the facilities of the GNU library.  We have mentioned which features belong to which standards to help you identify things that are potentially non-portable to other systems.  But the emphasis in this manual is not on strict portability.
-此手册的目的就是告诉你如何使用这些GNU库。手册已经详细描述那些特性归属那些标准，以此来帮助你识别那些对于某些系统不具有可以移植性。但手册中的重点并不严格具有可移植性。
+The purpose of this manual is to tell you how to use the facilities
+of the GNU library.  We have mentioned which features belong to which
+standards to help you identify things that are potentially non-portable
+to other systems.  But the emphasis in this manual is not on strict
+portability.
+此手册的目的就是告诉你如何使用这些GNU库。手册已经详细描述那些特性归属那些标准，
+以此来帮助你识别那些对于某些系统不具有可以移植性。但手册中的重点并不严格具有可移植性。
 
 1.1 Getting Started
 -------------------
 1.1 开始上路
 -----------
 
-This manual is written with the assumption that you are at least somewhat familiar with the C programming language and basic programming concepts.  Specifically, familiarity with ISO standard C (*note ISO C::), rather than "traditional" pre-ISO C dialects, is assumed.
-本手册假设你至少对C语言熟悉并具有基础的编程概念。特别的，熟悉ISO标准C，而不是其他的“C方言”。
+This manual is written with the assumption that you are at least
+somewhat familiar with the C programming language and basic programming
+concepts.  Specifically, familiarity with ISO standard C (*note ISO 
+C::), rather than "traditional" pre-ISO C dialects, is assumed.
+本手册假设你至少对C语言熟悉并具有基础的编程概念。特别的，熟悉ISO标准C，
+而不是其他的“C方言”。
 
 The GNU C library includes several "header files", each of which provides definitions and declarations for a group of related facilities; this information is used by the C compiler when processing your program.For example, the header file `stdio.h' declares facilities for performing input and output, and the header file `string.h' declares string processing utilities.  The organization of this manual generally follows the same division as the header files.
 GNU C库包含几个头文件，这些文件提供了相关函数的定义和声明。这些信息为C编译器编译的时候提供信息。例如，头文件“stdio.h”声明了输入/输出操作的函数集，"string.h"声明了字符串处理函数集。本文档大体遵从这些头文件的组织方法。
@@ -6804,6 +6828,7 @@ the given buffer, there is no problem with altering the state.
 
 6.3.5 A Complete Multibyte Conversion Example
 ---------------------------------------------
+6.3.5 一个完整的多字节转换的例子
 
 The example programs given in the last sections are only brief and do
 not contain all the error checking, etc.  Presented here is a complete
@@ -6891,6 +6916,7 @@ should be easy to derive versions using the other functions.
 
 6.4 Non-reentrant Conversion Function
 =====================================
+6.4 不可重入的转换函数
 
 The functions described in the previous chapter are defined in
 Amendment 1 to ISO C90, but the original ISO C90 standard also
@@ -6916,6 +6942,7 @@ non-reentrant conversion functions.*
 
 6.4.1 Non-reentrant Conversion of Single Characters
 ---------------------------------------------------
+6.4.1 不可重入的单字符转换
 
  -- Function: int mbtowc (wchar_t *restrict RESULT, const char
           *restrict STRING, size_t SIZE)
@@ -7010,6 +7037,7 @@ terms of `mbtowc'.
 
 6.4.2 Non-reentrant Conversion of Strings
 -----------------------------------------
+6.4.2 不可重入的字符串转换
 
 For convenience the ISO C90 standard also defines functions to convert
 entire strings instead of single characters.  These functions suffer
@@ -7073,6 +7101,7 @@ to ISO C90; see *note Converting Strings::.
 
 6.4.3 States in Non-reentrant Functions
 ---------------------------------------
+6.4.3 不可重复函数的状态
 
 In some multibyte character codes, the _meaning_ of any particular byte
 sequence is not fixed; it depends on what other sequences have come
@@ -7138,6 +7167,7 @@ the shift state will be changed mysteriously.
 
 6.5 Generic Charset Conversion
 ==============================
+6.5 通用字符集转换
 
 The conversion functions mentioned so far in this chapter all had in
 common that they operate on character sets that are not directly
@@ -7193,6 +7223,7 @@ capabilities.
 
 6.5.1 Generic Character Set Conversion Interface
 ------------------------------------------------
+6.5.1 通用字符集转换接口
 
 This set of functions follows the traditional cycle of using a resource:
 open-use-close.  The interface consists of three functions, each of
@@ -7393,6 +7424,7 @@ implementations, as demonstrated below.
 
 6.5.2 A complete `iconv' example
 --------------------------------
+6.5.2 一个完整的iconv例子
 
 The example below features a solution for a common problem.  Given that
 one knows the internal encoding used by the system for `wchar_t'
@@ -7521,6 +7553,7 @@ tricky.
 
 6.5.3 Some Details about other `iconv' Implementations
 ------------------------------------------------------
+6.5.3 一些关于其他iconv实现的细节
 
 This is not really the place to discuss the `iconv' implementation of
 other systems but it is necessary to know a bit about them to write
@@ -7689,6 +7722,7 @@ conversion if it is specified to be more efficient.
 
 6.5.4.1 Format of `gconv-modules' files
 .......................................
+6.5.4.1 gconv-modules文件的格式
 
 All information about the available conversions comes from a file named
 `gconv-modules', which can be found in any of the directories along the
@@ -7753,6 +7787,7 @@ them.
 
 6.5.4.2 Finding the conversion path in `iconv'
 ..............................................
+6.5.4.2 
 
 The set of available conversions form a directed graph with weighted
 edges.  The weights on the edges are the costs specified in the
@@ -8452,6 +8487,7 @@ modules.
 
 7 Locales and Internationalization
 **********************************
+7 本地化和国际化
 
 Different countries and cultures have varying conventions for how to
 communicate.  These conventions range from very simple ones, such as the
@@ -9600,6 +9636,7 @@ until a definitive (positive or negative) answer is read.
 
 8 Message Translation
 *********************
+8 消息翻译
 
 The program's interface with the human should be designed in a way to
 ease the human the task.  One of the possibilities is to use messages in
@@ -11187,6 +11224,7 @@ themselves.
 
 9 Searching and Sorting
 ***********************
+9 搜索和排序
 
 This chapter describes functions for searching and sorting arrays of
 arbitrary objects.  You pass the appropriate comparison function to be
@@ -11766,6 +11804,7 @@ is an enumeration type.
 
 10 Pattern Matching
 *******************
+10 模式匹配
 
 The GNU C Library provides pattern matching facilities for two kinds of
 patterns: regular expressions and file-name wildcards.  The library also
@@ -13023,6 +13062,7 @@ against parts of the variable value rather than against file names.
 
 11 Input/Output Overview
 ************************
+11 输入/输出概观
 
 Most programs need to do either input (reading data) or output (writing
 data), or most frequently both, in order to do anything useful.  The GNU
@@ -13358,6 +13398,7 @@ of file name strings.
 
 12 Input/Output on Streams
 **************************
+12 基于流的输入输出
 
 This chapter describes the functions for creating streams and performing
 input and output operations on them.  As discussed in *note I/O
@@ -17906,6 +17947,7 @@ since there is no more output on this line because the text is missing.
 
 13 Low-Level Input/Output
 *************************
+13 低阶输入输出系统
 
 This chapter describes functions for performing low-level input/output
 operations on file descriptors.  These functions include the primitives
@@ -21035,6 +21077,7 @@ IOCTLs on many platforms.
 
 14 File System Interface
 ************************
+14 文件系统接口
 
 This chapter describes the GNU C library's functions for manipulating
 files.  Unlike the input and output functions (*note I/O on Streams::;
@@ -23789,6 +23832,7 @@ Directories::.
 
 15 Pipes and FIFOs
 ******************
+15 管道和FIFO
 
 A "pipe" is a mechanism for interprocess communication; data written to
 the pipe by one process can be read by another process.  The data is
@@ -24057,6 +24101,7 @@ parameter.
 
 16 Sockets
 **********
+16 套接字
 
 This chapter describes the GNU facilities for interprocess
 communication using sockets.
@@ -26884,6 +26929,7 @@ because they are not reentrant.
 
 17 Low-Level Terminal Interface
 *******************************
+17 低阶终端接口
 
 This chapter describes functions that are specific to terminal devices.
 You can use these functions to do things like turn off input echoing;
@@ -28528,6 +28574,7 @@ These functions, derived from BSD, are available in the separate
 
 18 Syslog
 *********
+18 Syslog
 
 This chapter describes facilities for issuing and logging messages of
 system administration interest.  This chapter has nothing to do with
@@ -29003,6 +29050,7 @@ messages get discarded without ever reaching Syslog.  So the second
 
 19 Mathematics
 **************
+19 数学
 
 This chapter contains information about functions for performing
 mathematical computations, such as trigonometric functions.  Most of
@@ -30729,6 +30777,7 @@ time.
 
 20 Arithmetic Functions
 ***********************
+20 算法函数
 
 This chapter contains information about functions for doing basic
 arithmetic operations, such as splitting a float into its integer and
@@ -32613,6 +32662,7 @@ user-supplied buffer.
 
 21 Date and Time
 ****************
+21 日期和时间
 
 This chapter describes functions for manipulating dates and times,
 including functions for determining what time it is and conversion
@@ -34885,6 +34935,7 @@ same program, because `sleep' does not work by means of `SIGALRM'.
 
 22 Resource Usage And Limitation
 ********************************
+22 资源使用和限制
 
 This chapter describes functions for examining how much of various
 kinds of resources (CPU time, memory, etc.) a process has used and
@@ -36224,6 +36275,7 @@ of times (normally 1, 5, and 15 minutes).
 
 23 Non-Local Exits
 ******************
+23 非本地退出
 
 Sometimes when your program detects an unusual situation inside a deeply
 nested set of function calls, you would like to be able to immediately
@@ -36734,6 +36786,7 @@ was left.
 
 24 Signal Handling
 ******************
+24 信号处理
 
 A "signal" is a software interrupt delivered to a process.  The
 operating system uses signals to report exceptional situations to an
@@ -39546,6 +39599,7 @@ value, so you bitwise-OR the flags of interest to you together.
 
 25 The Basic Program/System Interface
 *************************************
+25 基本程序/系统接口
 
 "Processes" are the primitive units for allocation of system resources.
 Each process has its own address space and (usually) one thread of
@@ -42126,6 +42180,7 @@ terminates, or as a result of a signal--the following things happen:
 
 26 Processes
 ************
+26 进程
 
 "Processes" are the primitive units for allocation of system resources.
 Each process has its own address space and (usually) one thread of
@@ -42782,6 +42837,7 @@ output the data twice.  *Note Termination Internals::.
 
 27 Job Control
 **************
+27 作业控制
 
 "Job control" refers to the protocol for allowing a user to move
 between multiple "process groups" (or "jobs") within a single "login
@@ -43872,6 +43928,7 @@ file itself and not a particular open file descriptor.
 
 28 System Databases and Name Service Switch
 *******************************************
+28 系统数据库和名称服务转换
 
 Various functions in the C Library need to be configured to work
 correctly in the local environment.  Traditionally, this was done by
@@ -44445,6 +44502,7 @@ the database (e.g., it is `pw' for the password database).
 
 29 Users and Groups
 *******************
+29 用户和群组
 
 Every user who can log in on the system is identified by a unique number
 called the "user ID".  Each process has an effective user ID which says
@@ -46112,6 +46170,7 @@ selected netgroup.
 
 30 System Management
 ********************
+30 系统管理
 
 This chapter describes facilities for controlling the system that
 underlies a process (including the operating system and hardware) and
@@ -47143,6 +47202,7 @@ parameters are:
 
 31 System Configuration Parameters
 **********************************
+31 系统配置参数
 
 The functions and macros listed in this chapter give information about
 configuration parameters of the operating system--for example, capacity
@@ -48370,6 +48430,7 @@ like this:
 
 32 DES Encryption and Password Handling
 ***************************************
+32 DES加密和密码处理
 
 On many systems, it is unnecessary to have any kind of user
 authentication; for instance, a workstation which is not connected to a
@@ -48766,6 +48827,7 @@ their accompanying macros are all defined in the header
 
 33 Debugging support
 ********************
+33 调试支持
 
 Applications are usually debugged using dedicated debugger programs.
 But sometimes this is not possible and, in any case, it is useful to
@@ -48893,6 +48955,7 @@ entries probably all programs should be covered.
 
 Appendix A C Language Facilities in the Library
 ***********************************************
+附录A C语言库函数
 
 Some of the facilities implemented by the C library really should be
 thought of as parts of the C language itself.  These facilities ought to
@@ -49890,6 +49953,7 @@ of a particular structure member.
 
 Appendix B Summary of Library Facilities
 ****************************************
+附录B 库函数的小结
 
 This appendix is a complete list of the facilities declared within the
 header files supplied with the GNU C library.  Each entry also lists the
@@ -56784,6 +56848,7 @@ it.
 
 Appendix C Installing the GNU C Library
 ***************************************
+附录C GNU C库的安装
 
 Before you do anything else, you should read the file `FAQ' located at
 the top level of the source tree.  This file answers common questions
@@ -57247,6 +57312,7 @@ include the section names for easier identification.
 
 Appendix D Library Maintenance
 ******************************
+附录D 库的维护
 
 D.1 Adding New Functions
 ========================
@@ -57639,6 +57705,7 @@ generated are `ioctls.h', `errnos.h', `sys/param.h', and `errlist.c'
 
 Appendix E Contributors to the GNU C Library
 ********************************************
+附录E 为GNU C库的贡献者
 
 The GNU C library was written originally by Roland McGrath, and is
 currently maintained by Ulrich Drepper.  Some parts of the library were
@@ -57812,6 +57879,7 @@ contributed or worked on by other people.
 
 Appendix F Free Software Needs Free Documentation
 *************************************************
+附录F 开源软件需要开源文档
 
 The biggest deficiency in the free software community today is not in
 the software--it is the lack of good free documentation that we can
@@ -57820,6 +57888,7 @@ not come with free reference manuals and free introductory texts.
 Documentation is an essential part of any software package; when an
 important free software package does not come with a free manual and a
 free tutorial, that is a major gap.  We have many such gaps today.
+
 
    Consider Perl, for instance.  The tutorial manuals that people
 normally use are non-free.  How did this come about?  Because the
@@ -57901,6 +57970,7 @@ published by other publishers, at
 
 Appendix G GNU Lesser General Public License
 ********************************************
+附录 G GNU
 
                       Version 2.1, February 1999
 
@@ -58805,6 +58875,7 @@ permit their use in free software.
 
 Concept Index
 *************
+名词索引
 
 /etc/hostname:                                 See 30.1.    (line 47913)
 /etc/nsswitch.conf:                            See 28.2.    (line 45659)
