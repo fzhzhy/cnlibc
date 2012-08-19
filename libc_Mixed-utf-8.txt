@@ -47,6 +47,7 @@ C::), rather than "traditional" pre-ISO C dialects, is assumed.
 本手册假设你至少对C语言熟悉并具有基础的编程概念。特别的，熟悉ISO标准C，
 而不是其他的“C方言”。
 
+
 The GNU C library includes several "header files", each of which
 provides definitions and declarations for a group of related facilities;
 this information is used by the C compiler when processing your program.
@@ -317,39 +318,90 @@ You should use this second form for the C library header files.
 的声明和定义。相对应的，#include <file.h>通常是用来包含标准库的头文件。这个库文件
 可能已经被系统管理员安装到一个标准的位置。你应当使用第二种形式来包含标准库的头文件。
 
-Typically, `#include' directives are placed at the top of the C source file, before any other code.  If you begin your source files with some comments explaining what the code in the file does (a good idea), put the `#include' directives immediately afterwards, following the feature test macro definition (*note Feature Test Macros::).
-通常,#include指令在C文件的顶部，在所有代码之前。如果在源程序的开头放的是注释（好主意），紧接着应该就是#include指令了。再下来才是一些功能特性测试宏。（参见*特性测试宏*）
+	Typically, `#include' directives are placed at the top of the C
+source file, before any other code.  If you begin your source files with
+some comments explaining what the code in the file does (a good idea),
+put the `#include' directives immediately afterwards, following the
+feature test macro definition (*note Feature Test Macros::).
+通常,#include指令在C文件的顶部，在所有代码之前。如果在源程序的开头放的是注释（好主意），
+紧接着应该就是#include指令了。再下来才是一些功能特性测试宏。（参见*特性测试宏*）
 
-For more information about the use of header files and `#include' directives, *note Header Files: (cpp.info)Header Files.
+	For more information about the use of header files and `#include'
+directives, *note Header Files: (cpp.info)Header Files.
 更多关于头文件和#include指令的信息，参见*头文件*
 
-The GNU C library provides several header files, each of which contains the type and macro definitions and variable and function declarations for a group of related facilities.  This means that your programs may need to include several header files, depending on exactly which facilities you are using.
-GNU C 库提供了不少库文件，每一个文件都包含一组相关功能的类型和宏声明变量和函数声明。这意味着你可以根据应用程序所需来包含相应头文件。
+	The GNU C library provides several header files, each of which
+contains the type and macro definitions and variable and function
+declarations for a group of related facilities.  This means that your
+programs may need to include several header files, depending on exactly
+which facilities you are using.
+GNU C 库提供了不少库文件，每一个文件都包含一组相关功能的类型和宏声明变量和函数声明。
+这意味着你可以根据应用程序所需来包含相应头文件。
 
-Some library header files include other library header files automatically.  However, as a matter of programming style, you should not rely on this; it is better to explicitly include all the header files required for the library facilities you are using.  The GNU C library header files have been written in such a way that it doesn't matter if a header file is accidentally included more than once; including a header file a second time has no effect.  Likewise, if your program needs to include multiple header files, the order in which they are included doesn't matter.
-一些标准库的头文件自动包含了其他库的的头文件。然而，作为一种编程风格，你不应当依赖它；应当显示的包含所有使用的头文件。GNU C库的头文件已经防止了被偶然重复包含的问题；重复包含头文件没有影响。同样，如果你的程序需要包含多个头文件，包含的顺序也是没有区别的。
+	Some library header files include other library header files
+automatically.  However, as a matter of programming style, you should
+not rely on this; it is better to explicitly include all the header
+files required for the library facilities you are using.  The GNU C
+library header files have been written in such a way that it doesn't
+matter if a header file is accidentally included more than once;
+including a header file a second time has no effect.  Likewise, if your
+program needs to include multiple header files, the order in which they
+ are included doesn't matter.
+一些标准库的头文件自动包含了其他库的的头文件。然而，作为一种编程风格，你不应当依赖它；
+应当显示的包含所有使用的头文件。GNU C库的头文件已经防止了被偶然重复包含的问题；
+重复包含头文件没有影响。同样，如果你的程序需要包含多个头文件，包含的顺序也是没有区别的。
 
-*Compatibility Note:* Inclusion of standard header files in any order and any number of times works in any ISO C implementation. However, this has traditionally not been the case in many older C implementations.
-*兼容性注释* 依照任何顺序包含标准库的头文件多少次都可以在任何符合ISO C的实现上正常工作。然而，在过去的C编译器上去无法工作。
+*Compatibility Note:* Inclusion of standard header files in any
+order and any number of times works in any ISO C implementation. 
+However, this has traditionally not been the case in many older C
+implementations.
+*兼容性注释* 依照任何顺序包含标准库的头文件多少次都可以在任何符合ISO C的实现上正常
+工作。然而，在过去的C编译器上去无法工作。
 
-Strictly speaking, you don't _have to_ include a header file to use a function it declares; you could declare the function explicitly yourself, according to the specifications in this manual.  But it is usually better to include the header file because it may define types and macros that are not otherwise available and because it may define more efficient macro replacements for some functions.  It is also a sure way to have the correct declaration.
-严格的将，你没有必要非得包含所使用函数的声明的头文件；根据本手册的规范，你可以自己显示的声明。但通常最好还是包含头文件，因为它可能已经定义了一些类型和宏并且定义了一些更加高效的函数的宏。这也是确定的正确的声明。
+Strictly speaking, you don't _have to_ include a header file to use
+a function it declares; you could declare the function explicitly
+yourself, according to the specifications in this manual.  But it is
+usually better to include the header file because it may define types
+and macros that are not otherwise available and because it may define
+more efficient macro replacements for some functions.  It is also a sure
+way to have the correct declaration.
+严格的将，你没有必要非得包含所使用函数的声明的头文件；根据本手册的规范，你可以自己显示
+的声明。但通常最好还是包含头文件，因为它可能已经定义了一些类型和宏并且定义了一些更加
+高效的函数的宏。这也是确定的正确的声明。
 
 1.3.2 Macro Definitions of Functions
 ------------------------------------
 1.3.2 函数的宏定义
 ------------------------------------
 
-If we describe something as a function in this manual, it may have a macro definition as well.  This normally has no effect on how your program runs--the macro definition does the same thing as the function would.  In particular, macro equivalents for library functions evaluate arguments exactly once, in the same way that a function call would.  The main reason for these macro definitions is that sometimes they can produce an inline expansion that is considerably faster than an actual function call.
-在本手册中如果我们称作函数的有可能也是一个宏定义。通常不会影响你程序的运行，宏定义和函数功能相同。特别的，对于库函数宏相当于检查一次参数而已，就像函数调用一样。使用这些函数宏定义的主要原因是在行内展开要比真正的函数调用快的多。
+If we describe something as a function in this manual, it may have a
+macro definition as well.  This normally has no effect on how your
+program runs--the macro definition does the same thing as the function
+would.  In particular, macro equivalents for library functions evaluate
+arguments exactly once, in the same way that a function call would.  The
+main reason for these macro definitions is that sometimes they can
+produce an inline expansion that is considerably faster than an actual
+function call.
+在本手册中如果我们称作函数的有可能也是一个宏定义。通常不会影响你程序的运行，宏定义和
+函数功能相同。特别的，对于库函数宏相当于检查一次参数而已，就像函数调用一样。使用这些
+函数宏定义的主要原因是在行内展开要比真正的函数调用快的多。
 
-Taking the address of a library function works even if it is also defined as a macro.  This is because, in this context, the name of the function isn't followed by the left parenthesis that is syntactically necessary to recognize a macro call.
-尽管被定义为一个宏，它还是要引用库函数地址。这是因为，在此上下文中，函数名称被没有跟着左括号，这样从句法上就会必然被识别为宏调用。
+Taking the address of a library function works even if it is also
+defined as a macro.  This is because, in this context, the name of the
+function isn't followed by the left parenthesis that is syntactically
+necessary to recognize a macro call.
+尽管被定义为一个宏，它还是要引用库函数地址。这是因为，在此上下文中，函数名称被没有跟
+着左括号，这样从句法上就会必然被识别为宏调用。
 
-You might occasionally want to avoid using the macro definition of a function--perhaps to make your program easier to debug.  There are two ways you can do this:
+	You might occasionally want to avoid using the macro definition of a
+function--perhaps to make your program easier to debug.  There are two
+ways you can do this:
 有时候你也许并不想避免使用函数宏定义-应为它可以使程序更好调试。这里提供两种方法：
 
-	* You can avoid a macro definition in a specific use by enclosing the name of the function in parentheses.  This works because the name of the function doesn't appear in a syntactic context where it is recognizable as a macro call.
+	* You can avoid a macro definition in a specific use by enclosing
+	  the name of the function in parentheses.  This works because the 
+	  name of the function doesn't appear in a syntactic context where
+	  it is recognizable as a macro call.
 	* 为了防止错误使用，可以用括号将宏定义括起来。函数名在被认为是宏调用的句法上下文中将不会出现。
 
 	* You can suppress any macro definition for a whole source file by using the `#undef' preprocessor directive, unless otherwise stated explicitly in the description of that facility.
