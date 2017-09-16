@@ -2612,268 +2612,497 @@ the variable ‘errno’.  This variable is declared in the header file
      possibility except when writing signal handlers.
 		
      由于errno声明为volatile，它可能被一个信号处理函数异步的修改。
+     然而，一个正确的信号处理函数保存并恢复errno的值，因此通常不需要担心这个可能的异常。
 
-		However, a properly written signal handler saves and restores the value of `errno', so you generally do not need to worry about this possibility except when writing signal handlers.
-		然而，一个正确的信号处理函数保存并恢复errno的值，因此通常不需要担心这个可能的异常。
+     The initial value of ‘errno’ at program startup is zero.  Many
+     library functions are guaranteed to set it to certain nonzero
+     values when they encounter certain kinds of errors.  These error
+     conditions are listed for each function.  These functions do not
+     change ‘errno’ when they succeed; thus, the value of ‘errno’ after
+     a successful call is not necessarily zero, and you should not use
+     ‘errno’ to determine _whether_ a call failed.  The proper way to do
+     that is documented for each function.  _If_ the call failed, you
+     can examine ‘errno’.
+     
+     errno在程序启动的时候的初值是零。很多库函数在出错时保证将errno赋值为非零。这些错误状态为每一个函数提供。库函数成功不修改errno；因此，errno在函数执行成功后不必要为零，用errno来判断函数是否失败是不准的。正确的方法是验证每一个函数。如果函数调用失败，才能验证errno值。
 
-		The initial value of `errno' at program startup is zero.  Many library functions are guaranteed to set it to certain nonzero values when they encounter certain kinds of errors.  These error conditions are listed for each function.  These functions do not change `errno' when they succeed; thus, the value of `errno' after a successful call is not necessarily zero, and you should not use `errno' to determine _whether_ a call failed.  The proper way to do that is documented for each function.  _If_ the call failed, you can examine `errno'.
-		errno在程序启动的时候的初值是零。很多库函数在出错时保证将errno赋值为非零。这些错误状态为每一个函数提供。库函数成功不修改errno；因此，errno在函数执行成功后不必要为零，用errno来判断函数是否失败是不准的。正确的方法是验证每一个函数。如果函数调用失败，才能验证errno值。
+     Many library functions can set ‘errno’ to a nonzero value as a
+     result of calling other library functions which might fail.  You
+     should assume that any library function might alter ‘errno’ when
+     the function returns an error.
+     
+     很多库函数调用的其他库函数在失败的时候也将errno置为非零。应当考虑在函数返回错误的时候，任何库函数都可能修改errno值。
 
-		Many library functions can set `errno' to a nonzero value as a result of calling other library functions which might fail.  You should assume that any library function might alter `errno' when the function returns an error.
-		很多库函数调用的其他库函数在失败的时候也将errno置为非零。应当考虑在函数返回错误的时候，任何库函数都可能修改errno值。
+     *Portability Note:* ISO C specifies ‘errno’ as a “modifiable
+     lvalue” rather than as a variable, permitting it to be implemented
+     as a macro.  For example, its expansion might involve a function
+     call, like ‘*__errno_location ()’.  In fact, that is what it is on
+     GNU/Linux and GNU/Hurd systems.  The GNU C Library, on each system,
+     does whatever is right for the particular system.
+     
+     可移植性： ISO C指定errno是一个可修改的左值而不是一个变量，允许实现为一个宏。例如，它的扩展可能需要函数调用，像"*_error()"。事实上，GNU系统就是这样实现的。GNU库，在非GNU系统上，实现特定系统的需求。
 
-		*Portability Note:* ISO C specifies `errno' as a "modifiable lvalue" rather than as a variable, permitting it to be implemented as a macro.  For example, its expansion might involve a function call, like `*_errno ()'.  In fact, that is what it is on the GNU system itself.  The GNU library, on non-GNU systems, does whatever is right for the particular system.
-		可移植性： ISO C指定errno是一个可修改的左值而不是一个变量，允许实现为一个宏。例如，它的扩展可能需要函数调用，像"*_error()"。事实上，GNU系统就是这样实现的。GNU库，在非GNU系统上，实现特定系统的需求。
 
-		There are a few library functions, like `sqrt' and `atan', that return a perfectly legitimate value in case of an error, but also set `errno'.  For these functions, if you want to check to see whether an error occurred, the recommended method is to set `errno' to zero before calling the function, and then check its value afterward.
-		有一些库函数，例如sqrt和atan,在出错的时候返回一个相当合情合理的值，并同时置errno。对这些函数如果你想检查是否有错误发生，建议在调用函数之前将errno置零，然后再检查它的值。	
+     There are a few library functions, like ‘sqrt’ and ‘atan’, that
+     return a perfectly legitimate value in case of an error, but also
+     set ‘errno’.  For these functions, if you want to check to see
+     whether an error occurred, the recommended method is to set ‘errno’
+     to zero before calling the function, and then check its value
+     afterward.
+     
+     有一些库函数，例如sqrt和atan,在出错的时候返回一个相当合情合理的值，并同时置errno。对这些函数如果你想检查是否有错误发生，建议在调用函数之前将errno置零，然后再检查它的值。	
 
-		All the error codes have symbolic names; they are macros defined in `errno.h'.  The names start with `E' and an upper-case letter or digit; you should consider names of this form to be reserved names.  *Note Reserved Names::.
-		所有错误值都有符号名；这些作为宏定义在errno.h中。这些符号名以E和一个大写字母或者数字开头；应当将这些形式的符号名看作保留字。
+   All the error codes have symbolic names; they are macros defined in
+‘errno.h’.  The names start with ‘E’ and an upper-case letter or digit;
+you should consider names of this form to be reserved names.  *Note
+Reserved Names::.
+   
+   所有错误值都有符号名；这些作为宏定义在errno.h中。这些符号名以E和一个大写字母或者数字开头；应当将这些形式的符号名看作保留字。
 
-		The error code values are all positive integers and are all distinct, with one exception: `EWOULDBLOCK' and `EAGAIN' are the same.  Since the values are distinct, you can use them as labels in a `switch' statement; just don't use both `EWOULDBLOCK' and `EAGAIN'.  Your program should not make any other assumptions about the specific values of these symbolic constants.
-		所有错误码都是正整数并且彼此不相同，但有一个例外："EWOULDBLOCK"和 "EAGAIN"相同。由于这些值不相同，可以在switch语句中使用；但不要同时使用"EWOULDBLOCK"和"EAGAIN"。应用程序不能对这些符号常量的值做任何其他假定。
+   The error code values are all positive integers and are all distinct,
+with one exception: ‘EWOULDBLOCK’ and ‘EAGAIN’ are the same.  Since the
+values are distinct, you can use them as labels in a ‘switch’ statement;
+just don’t use both ‘EWOULDBLOCK’ and ‘EAGAIN’.  Your program should not
+make any other assumptions about the specific values of these symbolic
+constants.
 
-		The value of `errno' doesn't necessarily have to correspond to any of these macros, since some library functions might return other error codes of their own for other situations.  The only values that are guaranteed to be meaningful for a particular library function are the ones that this manual lists for that function.
-		errno的值并不需要是这些宏值，其他的库函数可能会返回其私有的状态。特定库函数保证有意义唯一的值是在其手册中描述的那一个。
+   所有错误码都是正整数并且彼此不相同，但有一个例外："EWOULDBLOCK"和 "EAGAIN"相同。由于这些值不相同，可以在switch语句中使用；但不要同时使用"EWOULDBLOCK"和"EAGAIN"。应用程序不能对这些符号常量的值做任何其他假定。
 
-		On non-GNU systems, almost any system call can return `EFAULT' if it is given an invalid pointer as an argument.  Since this could only happen as a result of a bug in your program, and since it will not happen on the GNU system, we have saved space by not mentioning `EFAULT' in the descriptions of individual functions.
-		在非GNU系统上，绝大多数系统调用返回EFAULT来表征参数是一个无效指针。这仅仅可能是你的程序的错误，在GNU系统不可能发生，我们在函数描述中没有提及EFAULT。(译者注：GNU系统不会返回EFAULT，而是会产生一个信号)
+   The value of ‘errno’ doesn’t necessarily have to correspond to any of
+these macros, since some library functions might return other error
+codes of their own for other situations.  The only values that are
+guaranteed to be meaningful for a particular library function are the
+ones that this manual lists for that function.
 
-		In some Unix systems, many system calls can also return `EFAULT' if given as an argument a pointer into the stack, and the kernel for some obscure reason fails in its attempt to extend the stack.  If this ever happens, you should probably try using statically or dynamically allocated memory instead of stack memory on that system.
-		在一些Unix系统中，如果传入栈上的参数是指针，并且内核由于不确定的原因扩展堆栈失败，很多系统调用也返回EFAULT。如果发生这样的错误，你应当静态或者动态申请内存而不要使用该系统的堆栈内存。
+   errno的值并不需要是这些宏值，其他的库函数可能会返回其私有的状态。特定库函数保证有意义唯一的值是在其手册中描述的那一个。
+
+   Except on GNU/Hurd systems, almost any system call can return
+‘EFAULT’ if it is given an invalid pointer as an argument.  Since this
+could only happen as a result of a bug in your program, and since it
+will not happen on GNU/Hurd systems, we have saved space by not
+mentioning ‘EFAULT’ in the descriptions of individual functions.
+
+   在非GNU系统上，绝大多数系统调用返回EFAULT来表征参数是一个无效指针。这仅仅可能是你的程序的错误，在GNU系统不可能发生，我们在函数描述中没有提及EFAULT。(译者注：GNU系统不会返回EFAULT，而是会产生一个信号)
+
+   In some Unix systems, many system calls can also return ‘EFAULT’ if
+given as an argument a pointer into the stack, and the kernel for some
+obscure reason fails in its attempt to extend the stack.  If this ever
+happens, you should probably try using statically or dynamically
+allocated memory instead of stack memory on that system.
+
+   在一些Unix系统中，如果传入栈上的参数是指针，并且内核由于不确定的原因扩展堆栈失败，很多系统调用也返回EFAULT。如果发生这样的错误，你应当静态或者动态申请内存而不要使用该系统的堆栈内存。
 
 
 2.2 Error Codes
 ===============
 2.2 错误码
 
-The error code macros are defined in the header file `errno.h'.  All of them expand into integer constant values.  Some of these error codes can't occur on the GNU system, but they can occur using the GNU library on other systems.
+The error code macros are defined in the header file ‘errno.h’.  All of
+them expand into integer constant values.  Some of these error codes
+can’t occur on GNU systems, but they can occur using the GNU C Library
+on other systems.
+
 错误码宏在头文件errno.h中定义。所有都是整型常量。有一些错误码在GNU系统中不会发生，但在其他系统中却可能。
 
-	-- Macro: int EPERM
-	-- 宏：in EPERM
-		Operation not permitted; only the owner of the file (or other resource) or processes with special privileges can perform the operation.
-		操作不允许；仅仅文件（或者其他资源）的所有者或者拥有特定优先级的进程可以进行该操作。
+ -- Macro: int EPERM
+ -- 宏：in EPERM
+     “Operation not permitted.” Only the owner of the file (or other
+     resource) or processes with special privileges can perform the
+     operation.
+     
+     操作不允许；仅仅文件（或者其他资源）的所有者或者拥有特定优先级的进程可以进行该操作。
 
-	-- Macro: int ENOENT
-	-- 宏：int ENOENT
-		No such file or directory.  This is a "file doesn't exist" error for ordinary files that are referenced in contexts where they are expected to already exist.
-		没有该文件或路径。这是一个在上下文中普通文件“文件不存在”错误。
+ -- Macro: int ENOENT
+ -- 宏：int ENOENT
+ 
+     “No such file or directory.” This is a “file doesn’t exist” error
+     for ordinary files that are referenced in contexts where they are
+     expected to already exist.
+     
+     没有该文件或路径。这是一个在上下文中普通文件“文件不存在”错误。
 
-	-- Macro: int ESRCH
-	-- 宏：int ESRCH
-		No process matches the specified process ID.
-		没有符合ID的进程
+ -- Macro: int ESRCH
+ -- 宏：int ESRCH
+     “No such process.” No process matches the specified process ID.
+     
+     没有符合ID的进程
 
-	-- Macro: int EINTR
-	-- 宏：int EINTR
-		Interrupted function call; an asynchronous signal occurred and prevented completion of the call.  When this happens, you should try the call again.
-		中断函数调用；一个异步信号发生并阻止当前调用。当此错误发生，你应当再次尝试调用。（译者注：在系统中有一些相应较慢的调用，例如accept，当EINTR发生，可以再次调用该系统调用。）
-		You can choose to have functions resume after a signal that is handled, rather than failing with `EINTR'; see *note Interrupted Primitives::.
-		你可以选择在信号处理完毕之后恢复操作，尽管是EINTR错误。参见：中断原语
+ -- Macro: int EINTR
+ -- 宏：int EINTR
 
-	-- Macro: int EIO
-	-- 宏：int EIO
-		Input/output error; usually used for physical read or write errors.
-		输入/输出 错误；通常用于物理读取错误。
+     “Interrupted system call.” An asynchronous signal occurred and
+     prevented completion of the call.  When this happens, you should
+     try the call again.
+     
+     中断函数调用；一个异步信号发生并阻止当前调用。当此错误发生，你应当再次尝试调用。（译者注：在系统中有一些相应较慢的调用，例如accept，当EINTR发生，可以再次调用该系统调用。）
+     
+     You can choose to have functions resume after a signal that is
+     handled, rather than failing with ‘EINTR’; see *note Interrupted
+     Primitives::.
+		
+     你可以选择在信号处理完毕之后恢复操作，尽管是EINTR错误。参见：中断原语
 
-	-- Macro: int ENXIO
-	-- 宏：int ENXIO
-		No such device or address.  The system tried to use the device represented by a file you specified, and it couldn't find the device.  This can mean that the device file was installed incorrectly, or that the physical device is missing or not correctly attached to the computer.
-		无此设备或者地址。系统尝试使用用户通过文件指定的设备，但却找不到该设备。这可能是设备文件没有正确安装；或者物理设备丢失或者没有正确连接到计算机。
+ -- Macro: int EIO
+ -- 宏：int EIO
+     “Input/output error.” Usually used for physical read or write
+     errors.
+     
+     输入/输出 错误；通常用于物理读取错误。
 
-	-- Macro: int E2BIG
+ -- Macro: int ENXIO
+ -- 宏：int ENXIO
+     
+     “No such device or address.” The system tried to use the device
+     represented by a file you specified, and it couldn’t find the
+     device.  This can mean that the device file was installed
+     incorrectly, or that the physical device is missing or not
+     correctly attached to the computer.
+     
+     无此设备或者地址。系统尝试使用用户通过文件指定的设备，但却找不到该设备。这可能是设备文件没有正确安装；或者物理设备丢失或者没有正确连接到计算机。
+
+ -- Macro: int E2BIG
 	-- 宏：int E2BIG
-		Argument list too long; used when the arguments passed to a new program being executed with one of the `exec' functions (*note Executing a File::) occupy too much memory space.  This condition never arises in the GNU system.
-		参数列表太长；用于执行exec函数集时，作为参数传入的新程序名使用了过多内存空间。（参见执行一个文件）这种情况在GNU系统中不会发生。
+     
+     “Argument list too long.” Used when the arguments passed to a new
+     program being executed with one of the ‘exec’ functions (*note
+     Executing a File::) occupy too much memory space.  This condition
+     never arises on GNU/Hurd systems.
+     
+     参数列表太长；用于执行exec函数集时，作为参数传入的新程序名使用了过多内存空间。（参见执行一个文件）这种情况在GNU系统中不会发生。
 
-	-- Macro: int ENOEXEC
-	-- 宏：int ENOEXEC
-		Invalid executable file format.  This condition is detected by the `exec' functions; see *note Executing a File::.
-		无效可行性文件格式。这种情况由exec函数集检测到。参见执行一个文件。
+ -- Macro: int ENOEXEC
+ -- 宏：int ENOEXEC
 
-	-- Macro: int EBADF
-	-- 宏：int EBADF
-		Bad file descriptor; for example, I/O on a descriptor that has been closed or reading from a descriptor open only for writing (or vice versa).
-		错误文件描述符；例如，对一个已经关闭的描述符进行I/O操作或者对一个仅有写属性的文件等等。
+     “Exec format error.” Invalid executable file format.  This
+     condition is detected by the ‘exec’ functions; see *note Executing
+     a File::.
+     
+     无效可行性文件格式。这种情况由exec函数集检测到。参见执行一个文件。
 
-	-- Macro: int ECHILD
-	-- 宏：int ECHILD
-		There are no child processes.  This error happens on operations that are supposed to manipulate child processes, when there aren't any processes to manipulate.
-		没有子进程。这种错误发生在操作子进程但却没有进程可以操作。
+ -- Macro: int EBADF
+ -- 宏：int EBADF
 
-	-- Macro: int EDEADLK
-	-- 宏：int EDEADLK
-		Deadlock avoided; allocating a system resource would have resulted in a deadlock situation.  The system does not guarantee that it will notice all such situations.  This error means you got lucky and the system noticed; it might just hang.  *Note File Locks::, for an example.
-		死锁避免；分配系统资源可能导致一个死锁。系统并不保证这样能够检测到所有的情况。这个错误意味你比较幸运，系统帮你检测到死锁。可能仅仅是宕机。参见文件锁。
+     “Bad file descriptor.” For example, I/O on a descriptor that has
+     been closed or reading from a descriptor open only for writing (or
+     vice versa).
+     
+     错误文件描述符；例如，对一个已经关闭的描述符进行I/O操作或者对一个仅有写属性的文件等等。
 
-	-- Macro: int ENOMEM
-	-- 宏：int ENOMEM
-		No memory available.  The system cannot allocate more virtual memory because its capacity is full.
-		没有内存可用。系统由于容量不能分配更多虚拟内存。
+ -- Macro: int ECHILD
+ -- 宏：int ECHILD
+     
+     “No child processes.” This error happens on operations that are
+     supposed to manipulate child processes, when there aren’t any
+     processes to manipulate.
+     
+     没有子进程。这种错误发生在操作子进程但却没有进程可以操作。
 
-	-- Macro: int EACCES
+ -- Macro: int EDEADLK
+ -- 宏：int EDEADLK
+
+     “Resource deadlock avoided.” Allocating a system resource would
+     have resulted in a deadlock situation.  The system does not
+     guarantee that it will notice all such situations.  This error
+     means you got lucky and the system noticed; it might just hang.
+     *Note File Locks::, for an example.
+     
+     死锁避免；分配系统资源可能导致一个死锁。系统并不保证这样能够检测到所有的情况。这个错误意味你比较幸运，系统帮你检测到死锁。可能仅仅是宕机。参见文件锁。
+
+ -- Macro: int ENOMEM
+ -- 宏：int ENOMEM
+     
+     “Cannot allocate memory.” The system cannot allocate more virtual
+     memory because its capacity is full.
+     
+     没有内存可用。系统由于容量不能分配更多虚拟内存。
+
+ -- Macro: int EACCES
 	-- 宏：int EACCES
-		Permission denied; the file permissions do not allow the attempted operation.
+     “Permission denied.” The file permissions do not allow the
+     attempted operation.
 		访问拒绝；文件不允许访问。
 
-	-- Macro: int EFAULT
+ -- Macro: int EFAULT
 	-- 宏：int EFAULT
-		Bad address; an invalid pointer was detected.  In the GNU system, this error never happens; you get a signal instead.
+     “Bad address.” An invalid pointer was detected.  On GNU/Hurd
+     systems, this error never happens; you get a signal instead.
 		错误地址；一个无效指针被检测到。在GNU系统中，这个错误永远不会发生；你将会得到一个信号。
 
-	-- Macro: int ENOTBLK
-	-- 宏：int ENOTBLK
-		A file that isn't a block special file was given in a situation that requires one.  For example, trying to mount an ordinary file as a file system in Unix gives this error.
-		一个不是块文件在需要的时候得到。例如：在把一个普通文件当作文件系统挂载到Unix上就会得到这个错误。
+ -- Macro: int ENOTBLK
+ -- 宏：int ENOTBLK
+ 
+     “Block device required.” A file that isn’t a block special file was
+     given in a situation that requires one.  For example, trying to
+     mount an ordinary file as a file system in Unix gives this error.
+     
+     一个不是块文件在需要的时候得到。例如：在把一个普通文件当作文件系统挂载到Unix上就会得到这个错误。
 
-	-- Macro: int EBUSY
+ -- Macro: int EBUSY
 	-- 宏：int EBUSY
-		Resource busy; a system resource that can't be shared is already in use.  For example, if you try to delete a file that is the root of a currently mounted filesystem, you get this error.
+
+     “Device or resource busy.” A system resource that can’t be shared
+     is already in use.  For example, if you try to delete a file that
+     is the root of a currently mounted filesystem, you get this error.
 		资源忙；一个系统资源在使用中不能被共享使用。例如，如果你删除一个当前已经挂载的文件系统的根目录，就会得到这个错误。
 
-	-- Macro: int EEXIST
+ -- Macro: int EEXIST
 	-- 宏：int EEXIST
-		File exists; an existing file was specified in a context where it only makes sense to specify a new file.
-		文件已存在；当指定一个新文件的时候被指向一个已经存在的文件。
 
-	-- Macro: int EXDEV
-	-- 宏：int EXDEV
-		An attempt to make an improper link across file systems was detected.  This happens not only when you use `link' (*note Hard Links::) but also when you rename a file with `rename' (*note Renaming Files::).
-		跨文件系统创建不适合的链接。这在使用link但同时又对文件重命名的时候。
+     “File exists.” An existing file was specified in a context where it
+     only makes sense to specify a new file.
 
-	-- Macro: int ENODEV
-	-- 宏：int ENODEV
-		The wrong type of device was given to a function that expects a particular sort of device.
-		给一个特定设备的处理函数传入错误的设备类型。
+     文件已存在；当指定一个新文件的时候被指向一个已经存在的文件。
 
-	-- Macro: int ENOTDIR
-	-- 宏：int ENOTDIR
-		A file that isn't a directory was specified when a directory is required.
-		指定的文件不是路径。
+ -- Macro: int EXDEV
+ -- 宏：int EXDEV
 
-	-- Macro: int EISDIR
+     “Invalid cross-device link.” An attempt to make an improper link
+     across file systems was detected.  This happens not only when you
+     use ‘link’ (*note Hard Links::) but also when you rename a file
+     with ‘rename’ (*note Renaming Files::).
+     
+     跨文件系统创建不适合的链接。这在使用link但同时又对文件重命名的时候。
+
+ -- Macro: int ENODEV
+
+ -- 宏：int ENODEV
+
+     “No such device.” The wrong type of device was given to a function
+     that expects a particular sort of device.
+     
+     给一个特定设备的处理函数传入错误的设备类型。
+
+ -- Macro: int ENOTDIR
+ -- 宏：int ENOTDIR
+
+     “Not a directory.” A file that isn’t a directory was specified when
+     a directory is required.
+     
+     指定的文件不是路径。
+
+ -- Macro: int EISDIR
 	-- 宏：int EISDIR
-		File is a directory; you cannot open a directory for writing, or create or remove hard links to it.
-		文件为路径；不能打开路径进行写操作；或者对其创建或者移除硬链接。
+
+     “Is a directory.” You cannot open a directory for writing, or
+     create or remove hard links to it.
+     
+     文件为路径；不能打开路径进行写操作；或者对其创建或者移除硬链接。
 
 	-- Macro: int EINVAL
 	-- 宏：int EINVAL
-		Invalid argument.  This is used to indicate various kinds of problems with passing the wrong argument to a library function.
-		无效参数。这通常用来指示各种传递库函数的错误参数问题。
 
-	-- Macro: int EMFILE
-	-- 宏：int EMFILE
-		The current process has too many files open and can't open any more.  Duplicate descriptors do count toward this limit.
-		当前进程打开太多文件并不能打开更多文件。复制描述符检查此限制。
+     “Invalid argument.” This is used to indicate various kinds of
+     problems with passing the wrong argument to a library function.
+     
+     无效参数。这通常用来指示各种传递库函数的错误参数问题。
 
-     		In BSD and GNU, the number of open files is controlled by a resource limit that can usually be increased.  If you get this error, you might want to increase the `RLIMIT_NOFILE' limit or make it unlimited; *note Limits on Resources::.
-		在BSD和GNU系统，打开文件数限制通常可以被增加。如果你碰到这个错误，你可以通过增加"RLIMIT_NOFILE"限制或者使其没有限制。参见资源限制。
+ -- Macro: int EMFILE
+ -- 宏：int EMFILE
+     “Too many open files.” The current process has too many files open
+     and can’t open any more.  Duplicate descriptors do count toward
+     this limit.
+     
+     当前进程打开太多文件并不能打开更多文件。复制描述符检查此限制。
 
-	-- Macro: int ENFILE
-	-- 宏：int ENFILE
-	 	There are too many distinct file openings in the entire system. Note that any number of linked channels count as just one file opening; see *note Linked Channels::.  This error never occurs in the GNU system.
-		在整个系统中有太多不同的打开的文件。任何数量的连接通道数量都作为一个文件打开。参见链接通道。这种错误从不会在GNU系统中发生。
+     In BSD and GNU, the number of open files is controlled by a
+     resource limit that can usually be increased.  If you get this
+     error, you might want to increase the ‘RLIMIT_NOFILE’ limit or make
+     it unlimited; *note Limits on Resources::.
+     
+     在BSD和GNU系统，打开文件数限制通常可以被增加。如果你碰到这个错误，你可以通过增加"RLIMIT_NOFILE"限制或者使其没有限制。参见资源限制。
 
-	-- Macro: int ENOTTY
-	-- 宏：int ENOTTY
-		Inappropriate I/O control operation, such as trying to set terminal modes on an ordinary file.
-		不合适的I/O控制操作，例如对普通文件进行终端模式设定。
+ -- Macro: int ENFILE
+ -- 宏：int ENFILE
 
-	-- Macro: int ETXTBSY
-	-- 宏：int ETXTBSY
-		An attempt to execute a file that is currently open for writing, or write to a file that is currently being executed.  Often using a debugger to run a program is considered having it open for writing and will cause this error.  (The name stands for "text file busy".)  This is not an error in the GNU system; the text is copied as necessary.
+     “Too many open files in system.” There are too many distinct file
+     openings in the entire system.  Note that any number of linked
+     channels count as just one file opening; see *note Linked
+     Channels::.  This error never occurs on GNU/Hurd systems.
+     
+     在整个系统中有太多不同的打开的文件。任何数量的连接通道数量都作为一个文件打开。参见链接通道。这种错误从不会在GNU系统中发生。
+
+ -- Macro: int ENOTTY
+ -- 宏：int ENOTTY
+     “Inappropriate ioctl for device.” Inappropriate I/O control
+     operation, such as trying to set terminal modes on an ordinary
+     file.
+     
+     不合适的I/O控制操作，例如对普通文件进行终端模式设定。
+
+ -- Macro: int ETXTBSY
+ -- 宏：int ETXTBSY
+
+     “Text file busy.” An attempt to execute a file that is currently
+     open for writing, or write to a file that is currently being
+     executed.  Often using a debugger to run a program is considered
+     having it open for writing and will cause this error.  (The name
+     stands for “text file busy”.)  This is not an error on GNU/Hurd
+     systems; the text is copied as necessary.
 		尝试执行已经打开写操作的文件或者写一个正在执行的文件。通常使用调试器运行程序会认为其已经打开而碰到这个错误。（此名字代表“文件忙”）在GNU系统中，这并不是一个错误。文档需要复制。
 
-	-- Macro: int EFBIG
+ -- Macro: int EFBIG
 	-- 宏：int EFBIG
-		File too big; the size of a file would be larger than allowed by the system.
-		文件太大；文件超过系统允许大小。
 
-	-- Macro: int ENOSPC
+     “File too large.” The size of a file would be larger than allowed
+     by the system.
+     
+     文件太大；文件超过系统允许大小。
+
+ -- Macro: int ENOSPC
 	-- 宏：int ENOSPC
-		No space left on device; write operation on a file failed because the disk is full.
-		系统无剩余空间；由于磁盘满而导致写文件失败。
 
-	-- Macro: int ESPIPE
-	-- 宏：int ESPIPE
-		Invalid seek operation (such as on a pipe).
-		无效的seek操作（例如在管道上）
+     “No space left on device.” Write operation on a file failed because
+     the disk is full.
+     
+     系统无剩余空间；由于磁盘满而导致写文件失败。
 
-	-- Macro: int EROFS
-	-- 宏：int EROFS
-		An attempt was made to modify something on a read-only file system.
-		尝试修改只读系统的文件。
+ -- Macro: int ESPIPE
+ -- 宏：int ESPIPE
+     
+     “Illegal seek.” Invalid seek operation (such as on a pipe).
+     
+     无效的seek操作（例如在管道上）
 
-	-- Macro: int EMLINK
-	-- 宏：int EMLINK
-		Too many links; the link count of a single file would become too large.  `rename' can cause this error if the file being renamed already has as many links as it can take (*note Renaming Files::).
-		太多链接；单独文件的链接数太多。如果将一个已经有很多链接的文件进行"rename"可能出现此错误。（参见重命名文件）
+ -- Macro: int EROFS
+ -- 宏：int EROFS
+     
+     “Read-only file system.” An attempt was made to modify something on
+     a read-only file system.
+     
+     尝试修改只读系统的文件。
 
-	-- Macro: int EPIPE
-	-- 宏：int EPIPE
-		Broken pipe; there is no process reading from the other end of a pipe.  Every library function that returns this error code also generates a `SIGPIPE' signal; this signal terminates the program if not handled or blocked.  Thus, your program will never actually see `EPIPE' unless it has handled or blocked `SIGPIPE'.
-		损坏的管道；在管道另一端没有进程读取。没一个库函数都返回这个错误码并且产生SIGPIP信号；如果没有处理或者屏蔽，此信号将终止程序。因此如果不处理或者屏蔽信号SIGPIPE，程序不会真正“看到”EPIPE。
+ -- Macro: int EMLINK
+ -- 宏：int EMLINK
 
-	-- Macro: int EDOM
+     “Too many links.” The link count of a single file would become too
+     large.  ‘rename’ can cause this error if the file being renamed
+     already has as many links as it can take (*note Renaming Files::).
+
+     太多链接；单独文件的链接数太多。如果将一个已经有很多链接的文件进行"rename"可能出现此错误。（参见重命名文件）
+
+ -- Macro: int EPIPE
+ -- 宏：int EPIPE
+
+     “Broken pipe.” There is no process reading from the other end of a
+     pipe.  Every library function that returns this error code also
+     generates a ‘SIGPIPE’ signal; this signal terminates the program if
+     not handled or blocked.  Thus, your program will never actually see
+     ‘EPIPE’ unless it has handled or blocked ‘SIGPIPE’.
+     
+     损坏的管道；在管道另一端没有进程读取。没一个库函数都返回这个错误码并且产生SIGPIP信号；如果没有处理或者屏蔽，此信号将终止程序。因此如果不处理或者屏蔽信号SIGPIPE，程序不会真正“看到”EPIPE。
+
+ -- Macro: int EDOM
 	-- 宏：int EDOM
-		Domain error; used by mathematical functions when an argument value does not fall into the domain over which the function is defined.
-		域错误。使用数学函数时，参数值不再函数定义范围内出现。
+     “Numerical argument out of domain.” Used by mathematical functions
+     when an argument value does not fall into the domain over which the
+     function is defined.
+     
+     域错误。使用数学函数时，参数值不再函数定义范围内出现。
 
-	-- Macro: int ERANGE
+ -- Macro: int ERANGE
 	-- 宏：int ERANGE
-		Range error; used by mathematical functions when the result value is not representable because of overflow or underflow.
-		范围错误：使用数学函数时，当结果值由于上溢或者下溢的问题不能表示的时候发生。
+     “Numerical result out of range.” Used by mathematical functions
+     when the result value is not representable because of overflow or
+     underflow.
+     
+     范围错误：使用数学函数时，当结果值由于上溢或者下溢的问题不能表示的时候发生。
 
-	-- Macro: int EAGAIN
+ -- Macro: int EAGAIN
 	-- 宏：int EAGAIN
-		Resource temporarily unavailable; the call might work if you try again later.  The macro `EWOULDBLOCK' is another name for `EAGAIN'; they are always the same in the GNU C library.
-		资源暂时可不用；稍后再试该调用可能成功。宏EWOULDBLOCK是EAGAIN的另外一个名字；在GNU C库中它们两个总是相同。
+     
+     “Resource temporarily unavailable.” The call might work if you try
+     again later.  The macro ‘EWOULDBLOCK’ is another name for ‘EAGAIN’;
+     they are always the same in the GNU C Library.
+     
+     资源暂时可不用；稍后再试该调用可能成功。宏EWOULDBLOCK是EAGAIN的另外一个名字；在GNU C库中它们两个总是相同。
 		
-		This error can happen in a few different situations:
-		这个错误码可能发生在一下少数情况：
+     This error can happen in a few different situations:
+     这个错误码可能发生在一下少数情况：
 
-		* An operation that would block was attempted on an object that has non-blocking mode selected.  Trying the same operation again will block until some external condition makes it possible to read, write, or connect (whatever the operation). You can use `select' to find out when the operation will be possible; *note Waiting for I/O::.
-		* 一个可能阻塞的操作试图访问无阻塞模式的对象。再次执行该操作就会被阻塞直到外部条件使其read,write或connect(任意操作）.可以使用select来查看该操作什么时候可能被阻塞。（参见I/O等待）
+        • An operation that would block was attempted on an object that
+          has non-blocking mode selected.  Trying the same operation
+          again will block until some external condition makes it
+          possible to read, write, or connect (whatever the operation).
+          You can use ‘select’ to find out when the operation will be
+          possible; *note Waiting for I/O::.
+	  
+	  * 一个可能阻塞的操作试图访问无阻塞模式的对象。再次执行该操作就会被阻塞直到外部条件使其read,write或connect(任意操作）.可以使用select来查看该操作什么时候可能被阻塞。（参见I/O等待）
 
-		* Portability Note:* In many older Unix systems, this condition was indicated by `EWOULDBLOCK', which was a distinct error code different from `EAGAIN'.  To make your program portable, you should check for both codes and treat them the same.
-		* 可移植注释：在很多较老的Unix系统上，这种情况用EWOULDBLOCK指示，这种情况下和EAGAIN是完全不同的。为了程序的可移植性，必须对两个宏都做检查并做相同处理。
+          *Portability Note:* In many older Unix systems, this condition
+          was indicated by ‘EWOULDBLOCK’, which was a distinct error
+          code different from ‘EAGAIN’.  To make your program portable,
+          you should check for both codes and treat them the same.
+	  
+	  * 可移植注释：在很多较老的Unix系统上，这种情况用EWOULDBLOCK指示，这种情况下和EAGAIN是完全不同的。为了程序的可移植性，必须对两个宏都做检查并做相同处理。
 
-		* A temporary resource shortage made an operation impossible. `fork' can return this error.  It indicates that the shortage is expected to pass, so your program can try the call again later and it may succeed.  It is probably a good idea to delay for a few seconds before trying it again, to allow time for other processes to release scarce resources. Such shortages are usually fairly serious and affect the whole system, so usually an interactive program should report the error to the user and return to its command loop.
-		* 暂时的资源缺乏导致操作失败。fork可能返回此错误。这表示这个缺失应当通过，这样程序可以在后面再次尝试。延时几秒钟再次尝试不失为一个不错的办法，这样给其他进程时间以释放资源。这种资源缺乏通常相当严重，并有可能影响整个系统，因此交互式系统必须报告这个错误给用户并退出其运行队列。
+        • A temporary resource shortage made an operation impossible.
+          ‘fork’ can return this error.  It indicates that the shortage
+          is expected to pass, so your program can try the call again
+          later and it may succeed.  It is probably a good idea to delay
+          for a few seconds before trying it again, to allow time for
+          other processes to release scarce resources.  Such shortages
+          are usually fairly serious and affect the whole system, so
+          usually an interactive program should report the error to the
+          user and return to its command loop.
+	  
+	  * 暂时的资源缺乏导致操作失败。fork可能返回此错误。这表示这个缺失应当通过，这样程序可以在后面再次尝试。延时几秒钟再次尝试不失为一个不错的办法，这样给其他进程时间以释放资源。这种资源缺乏通常相当严重，并有可能影响整个系统，因此交互式系统必须报告这个错误给用户并退出其运行队列。
 
-	-- Macro: int EWOULDBLOCK
+ -- Macro: int EWOULDBLOCK
 	-- 宏：int EWOULDBLOCK
-		In the GNU C library, this is another name for `EAGAIN' (above). The values are always the same, on every operating system.
-		在GNU C库，这是EAGAIN（上面刚刚提到）的另一个名字。他们在每一个系统上总是应该相同。
 
-		C libraries in many older Unix systems have `EWOULDBLOCK' as a separate error code.
-		很多老的Unix系统的C库中，EWOULDBLOCK是一个完全不同的值。
+     “Operation would block.” In the GNU C Library, this is another name
+     for ‘EAGAIN’ (above).  The values are always the same, on every
+     operating system.
+     
+     在GNU C库，这是EAGAIN（上面刚刚提到）的另一个名字。他们在每一个系统上总是应该相同。
 
-	-- Macro: int EINPROGRESS
+     C libraries in many older Unix systems have ‘EWOULDBLOCK’ as a
+     separate error code.
+     
+     很多老的Unix系统的C库中，EWOULDBLOCK是一个完全不同的值。
+
+ -- Macro: int EINPROGRESS
 	-- 宏：int EINPROGRESS
-		An operation that cannot complete immediately was initiated on an object that has non-blocking mode selected.  Some functions that must always block (such as `connect'; *note Connecting::) never return `EAGAIN'.  Instead, they return `EINPROGRESS' to indicate that the operation has begun and will take some time.  Attempts to manipulate the object before the call completes return `EALREADY'. You can use the `select' function to find out when the pending operation has completed; *note Waiting for I/O::.
-		不能马上完成的操作对一个处于非阻塞模式的对象操作会导致此问题。有些函数必须总是阻塞（例如“connect”）并从不返回“EAGAIN”,而是返回“EINPROGRESS”来表示操作已经进行并需要一些时间。尝试操作对象前需要调用者返回“EALREDY”.(这样翻译对么？怎么感觉反了)。可以使用“select”函数来找出什么时候挂起的函数完成。参见 I/O等待
+     
+     “Operation now in progress.” An operation that cannot complete
+     immediately was initiated on an object that has non-blocking mode
+     selected.  Some functions that must always block (such as
+     ‘connect’; *note Connecting::) never return ‘EAGAIN’.  Instead,
+     they return ‘EINPROGRESS’ to indicate that the operation has begun
+     and will take some time.  Attempts to manipulate the object before
+     the call completes return ‘EALREADY’.  You can use the ‘select’
+     function to find out when the pending operation has completed;
+     *note Waiting for I/O::.
+     
+     不能马上完成的操作对一个处于非阻塞模式的对象操作会导致此问题。有些函数必须总是阻塞（例如“connect”）并从不返回“EAGAIN”,而是返回“EINPROGRESS”来表示操作已经进行并需要一些时间。尝试操作对象前需要调用者返回“EALREDY”.(这样翻译对么？怎么感觉反了)。可以使用“select”函数来找出什么时候挂起的函数完成。参见 I/O等待
 
-	-- Macro: int EALREADY
+ -- Macro: int EALREADY
 	-- 宏：int EALREADY
-		An operation is already in progress on an object that has non-blocking mode selected.
-		一个对象的非阻塞模式使能的情况下，已经有一个操作在进行。
+     “Operation already in progress.” An operation is already in
+     progress on an object that has non-blocking mode selected.
+     
+     一个对象的非阻塞模式使能的情况下，已经有一个操作在进行。
 
-	-- Macro: int ENOTSOCK
+ -- Macro: int ENOTSOCK
 	-- 宏：int ENOTSOCK
-		A file that isn't a socket was specified when a socket is required.
-		非所需的socket文件
+     “Socket operation on non-socket.” A file that isn’t a socket was
+     specified when a socket is required.
+     
+     非所需的socket文件
 
-	-- Macro: int EMSGSIZE
+ -- Macro: int EMSGSIZE
 	-- 宏： int EMSGSIZE
-		The size of a message sent on a socket was larger than the supported maximum size.
-		发向socket的消息大小超过支持的最大值。
+
+     “Message too long.” The size of a message sent on a socket was
+     larger than the supported maximum size.
+
+     发向socket的消息大小超过支持的最大值。
 
 	-- Macro: int EPROTOTYPE
 	-- 宏：int EPROTOTYPE
-		The socket type does not support the requested communications protocol.
+
+     “Protocol wrong type for socket.” The socket type does not support
+     the requested communications protocol.
 		socket类型不支持被访问的通讯协议。
 
 	-- Macro: int ENOPROTOOPT
@@ -3095,283 +3324,465 @@ The error code macros are defined in the header file `errno.h'.  All of them exp
 
 	-- Macro: int EDIED
 	-- 宏：int EDIED
-		In the GNU system, opening a file returns this error when the file is translated by a program and the translator program dies while starting up, before it has connected to the file.
-		在GNU系统，在系统启动时，翻译程序在连接到文件之前死掉，则其他程序打开此文件时返回该错误。
+     “Translator died.” On GNU/Hurd systems, opening a file returns this
+     error when the file is translated by a program and the translator
+     program dies while starting up, before it has connected to the
+     file.
+     
+     在GNU系统，在系统启动时，翻译程序在连接到文件之前死掉，则其他程序打开此文件时返回该错误。
 
 	-- Macro: int ED
 	-- 宏：int ED
-		The experienced user will know what is wrong.
+     “?.” The experienced user will know what is wrong.
 		有经验的用户将知道什么地方出错了。（译者：囧，这种注释真是没有办法。）
 
-	-- Macro: int EGREGIOUS
+ -- Macro: int EGREGIOUS
 	-- 宏：int EGREGIOUS
-		You did *what*?
+     “You really blew it this time.” You did *what*?
 		（译者注：囧，不知道怎么翻译）
 
-	-- Macro: int EIEIO
+ -- Macro: int EIEIO
+ 
 	-- 宏：int EIEIO
-		Go home and have a glass of warm, dairy-fresh milk.
-		（译者注：囧，不知道怎么翻译）
+
+     “Computer bought the farm.” Go home and have a glass of warm,
+     dairy-fresh milk.
+
+     （译者注：囧，不知道怎么翻译）
 
 
-	-- Macro: int EGRATUITOUS
+ -- Macro: int EGRATUITOUS
 	-- 宏：int EGRATEUITOUS
-		This error code has no purpose.
+     “Gratuitous error.” This error code has no purpose.
 		此错误码没有目的。
 
 	-- Macro: int EBADMSG
 	-- 宏： int EBADMSG
+     “Bad message.”
 
 	-- Macro: int EIDRM
 	-- 宏： int EIDRM
+     “Identifier removed.”
 
 	-- Macro: int EMULTIHOP
 	-- 宏： int EMULTIHOP
+     “Multihop attempted.”
 
 	-- Macro: int ENODATA
 	-- 宏： int ENODATA
+     “No data available.”
 
 	-- Macro: int ENOLINK
 	-- 宏： int ENOLINK
+     “Link has been severed.”
 
 	-- Macro: int ENOMSG
 	-- 宏： int ENOMSG
+     “No message of desired type.”
 
 	-- Macro: int ENOSR
 	-- 宏： int ENOSR
+     “Out of streams resources.”
 
 	-- Macro: int ENOSTR
 	-- 宏： int ENOSTR
+     “Device not a stream.”
 
 	-- Macro: int EOVERFLOW
 	-- 宏：int EOVERFLOW
+     “Value too large for defined data type.”
 
 	-- Macro: int EPROTO
 	-- 宏：int EPROTO
+     “Protocol error.”
 
 	-- Macro: int ETIME
 	-- 宏： int ETIME
+     “Timer expired.”
 
 	-- Macro: int ECANCELED
 	-- 宏：int ECANCELED
-		Operation canceled; an asynchronous operation was canceled before it completed.  *Note Asynchronous I/O::.  When you call `aio_cancel', the normal result is for the operations affected to complete with this error; *note Cancel AIO Operations::.
-		操作取消；一个异步操作在完成前被取消。参见异步I/O。当调用aio_cancel，通常的结果是此错误码影响操作的完成。参见取消AIO操作
+     
+     “Operation canceled.” An asynchronous operation was canceled before
+     it completed.  *Note Asynchronous I/O::.  When you call
+     ‘aio_cancel’, the normal result is for the operations affected to
+     complete with this error; *note Cancel AIO Operations::.
+     
+     操作取消；一个异步操作在完成前被取消。参见异步I/O。当调用aio_cancel，通常的结果是此错误码影响操作的完成。参见取消AIO操作
 
-	_The following error codes are defined by the Linux/i386 kernel.They are not yet documented._
-	下面的错误码在Linux/i386内核中定义。还没有文档。
+   _The following error codes are defined by the Linux/i386 kernel.
+They are not yet documented._
+   
+   下面的错误码在Linux/i386内核中定义。还没有文档。
 
 	-- Macro: int ERESTART
 	-- 宏： int ERESTART
+     “Interrupted system call should be restarted.”
 
 	-- Macro: int ECHRNG
 	-- 宏： int ECHRNG
+     “Channel number out of range.”
 
 	-- Macro: int EL2NSYNC
 	-- 宏： int EL2NSYNC
+     “Level 2 not synchronized.”
 
 	-- Macro: int EL3HLT
 	-- 宏： int EL3HLT
+     “Level 3 halted.”
 
 	-- Macro: int EL3RST
 	-- 宏： int EL3RST
+     “Level 3 reset.”
 
 	-- Macro: int ELNRNG
 	-- 宏： int ELNRNG
+     “Link number out of range.”
 
 	-- Macro: int EUNATCH
 	-- 宏： int EUNATCH
+     “Protocol driver not attached.”
 
 	-- Macro: int ENOCSI
 	-- 宏： int ENOCSI
+     “No CSI structure available.”
 
 	-- Macro: int EL2HLT
 	-- 宏： int EL2HLT
+     “Level 2 halted.”
 
 	-- Macro: int EBADE
 	-- 宏： int EBADE
+     “Invalid exchange.”
 
 	-- Macro: int EBADR
 	-- 宏： int EBADR
+     “Invalid request descriptor.”
 
 	-- Macro: int EXFULL
 	-- 宏：int EXFULL
+     “Exchange full.”
 
 	-- Macro: int ENOANO
 	-- 宏：int ENOANO
+     “No anode.”
 
 	-- Macro: int EBADRQC
 	-- 宏：int EBADRQC
+     “Invalid request code.”
 
 	-- Macro: int EBADSLT
 	-- 宏：int EBADSLT
+     “Invalid slot.”
 
 	-- Macro: int EDEADLOCK
 	-- 宏：int EDEADLOCK
+     “File locking deadlock error.”
 
 	-- Macro: int EBFONT
 	-- 宏：int EBFONT
+     “Bad font file format.”
 
 	-- Macro: int ENONET
 	-- 宏：int ENONET
+     “Machine is not on the network.”
 
 	-- Macro: int ENOPKG
 	-- 宏：int ENOPKG
+     “Package not installed.”
 
 	-- Macro: int EADV
 	-- 宏：int EADV
+     “Advertise error.”
 
 	-- Macro: int ESRMNT
 	-- 宏：int ESRMNT
+     “Srmount error.”
 
 	-- Macro: int ECOMM
 	-- 宏：int ECOMM
+     “Communication error on send.”
 
 	-- Macro: int EDOTDOT
 	-- 宏：int EDOTDOT
+     “RFS specific error.”
 
 	-- Macro: int ENOTUNIQ
 	-- 宏：int ENOTUNIQ
+     “Name not unique on network.”
 
 	-- Macro: int EBADFD
 	-- 宏：int EBADFD
+     “File descriptor in bad state.”
 
 	-- Macro: int EREMCHG
 	-- 宏：int EREMCHG
+     “Remote address changed.”
 
 	-- Macro: int ELIBACC
 	-- 宏：int ELIBACC
+     “Can not access a needed shared library.”
 
 	-- Macro: int ELIBBAD
 	-- 宏：int ELIBBAD
+     “Accessing a corrupted shared library.”
 
-	-- Macro: int ELIBSCN
+ -- Macro: int ELIBSCN
 	-- 宏：int ELIBSCN
+     “.lib section in a.out corrupted.”
 
-	-- Macro: int ELIBMAX
+ -- Macro: int ELIBMAX
 	-- 宏：int ELIBMAX
+     “Attempting to link in too many shared libraries.”
 
-	-- Macro: int ELIBEXEC
+ -- Macro: int ELIBEXEC
 	-- 宏：int ELIBEXEC
+     “Cannot exec a shared library directly.”
 
-	-- Macro: int ESTRPIPE
+ -- Macro: int ESTRPIPE
 	-- 宏：int ESTRPIPE
+     “Streams pipe error.”
 
-	-- Macro: int EUCLEAN
+ -- Macro: int EUCLEAN
 	-- 宏：int EUCLEAN
+     “Structure needs cleaning.”
 
-	-- Macro: int ENOTNAM
+ -- Macro: int ENOTNAM
 	-- 宏：int ENOTNAM
+     “Not a XENIX named type file.”
 
-	-- Macro: int ENAVAIL
+ -- Macro: int ENAVAIL
 	-- 宏：int ENAVAIL
+     “No XENIX semaphores available.”
 
-	-- Macro: int EISNAM
+ -- Macro: int EISNAM
 	-- 宏：int EISNAM
+     “Is a named type file.”
 
-	-- Macro: int EREMOTEIO
+ -- Macro: int EREMOTEIO
 	-- 宏：int EREMOTEIO
+     “Remote I/O error.”
 
-	-- Macro: int ENOMEDIUM
+ -- Macro: int ENOMEDIUM
 	-- 宏：int ENOMEDIUM
+     “No medium found.”
 
-	-- Macro: int EMEDIUMTYPE
+ -- Macro: int EMEDIUMTYPE
 	-- 宏：int EMEDIUMTYPE
+     “Wrong medium type.”
 
-	-- Macro: int ENOKEY
+ -- Macro: int ENOKEY
 	-- 宏：int ENOKEY
+     “Required key not available.”
 
-	-- Macro: int EKEYEXPIRED
+ -- Macro: int EKEYEXPIRED
 	-- 宏：int EKEYEXPIRED
+     “Key has expired.”
 
-	-- Macro: int EKEYREVOKED
+ -- Macro: int EKEYREVOKED
 	-- 宏：int EKEYREVOKED
+     “Key has been revoked.”
 
-	-- Macro: int EKEYREJECTED
+ -- Macro: int EKEYREJECTED
 	-- 宏：int EKEYREJECTED
+     “Key was rejected by service.”
 
-	-- Macro: int EOWNERDEAD
+ -- Macro: int EOWNERDEAD
 	-- 宏：int EOWNERDEAD
+     “Owner died.”
 
-	-- Macro: int ENOTRECOVERABLE
+ -- Macro: int ENOTRECOVERABLE
 	-- 宏：int ENOTRECOVERABLE
+     “State not recoverable.”
+
+ -- Macro: int ERFKILL
+
+     “Operation not possible due to RF-kill.”
+
+ -- Macro: int EHWPOISON
+
+     “Memory page has hardware error.”
 
 2.3 Error Messages
 ==================
 2.3 错误消息
 
-The library has functions and variables designed to make it easy for your program to report informative error messages in the customary format about the failure of a library call.  The functions `strerror' and `perror' give you the standard error message for a given error code; the variable `program_invocation_short_name' gives you convenient access to the name of the program that encountered the error.
+The library has functions and variables designed to make it easy for
+your program to report informative error messages in the customary
+format about the failure of a library call.  The functions ‘strerror’
+and ‘perror’ give you the standard error message for a given error code;
+the variable ‘program_invocation_short_name’ gives you convenient access
+to the name of the program that encountered the error.
+
 标准库设计了函数和变量来使得你的程序易于报告可以自定义格式的有用的错误信息。函数strerror和perror对错误码输出标准错误信息；变量“program_invocation_short_name”提供访问程序碰到的错误的名称。
 
-	-- Function: char * strerror (int ERRNUM)
-	-- 函数： char * strerror (int ERRNUM)
+ -- Function: char * strerror (int ERRNUM)
+ 
+ -- 函数： char * strerror (int ERRNUM)
 
-		The `strerror' function maps the error code (*note Checking for Errors::) specified by the ERRNUM argument to a descriptive error message string.  The return value is a pointer to this string.
-		strerror函数将错误码和描述错误信息串映射。返回指向字符串的指针。
+     Preliminary: | MT-Unsafe race:strerror | AS-Unsafe heap i18n |
+     AC-Unsafe mem | *Note POSIX Safety Concepts::.
 
-		The value ERRNUM normally comes from the variable `errno'.
-		ERRNUM通常来自“errno”。
+     The ‘strerror’ function maps the error code (*note Checking for
+     Errors::) specified by the ERRNUM argument to a descriptive error
+     message string.  The return value is a pointer to this string.
+     
+     strerror函数将错误码和描述错误信息串映射。返回指向字符串的指针。
 
-		You should not modify the string returned by `strerror'.  Also, if you make subsequent calls to `strerror', the string might be overwritten.  (But it's guaranteed that no library function ever calls `strerror' behind your back.)
-		你不能修改strerror返回的字符串。同样如果后续操作调用strerror，字符串也可能被复写。（但保证了了没有库函数在你后面调用strerror。）
+     The value ERRNUM normally comes from the variable ‘errno’.
+     
+     ERRNUM通常来自“errno”。
 
-		The function `strerror' is declared in `string.h'.
-		strerror在string.h中声明。
+     You should not modify the string returned by ‘strerror’.  Also, if
+     you make subsequent calls to ‘strerror’, the string might be
+     overwritten.  (But it’s guaranteed that no library function ever
+     calls ‘strerror’ behind your back.)
+     
+     你不能修改strerror返回的字符串。同样如果后续操作调用strerror，字符串也可能被复写。（但保证了了没有库函数在你后面调用strerror。）
 
-	-- Function: char * strerror_r (int ERRNUM, char *BUF, size_t N)
-	-- 函数：char * strerror_r (int ERRNUM, char *BUF, size_t N)
-		The `strerror_r' function works like `strerror' but instead of returning the error message in a statically allocated buffer shared by all threads in the process, it returns a private copy for the thread. This might be either some permanent global data or a message string in the user supplied buffer starting at BUF with the length of N bytes.
-		strerror_r和strerror类似，但并不返回进程中所有线程共享的静态内存中的错误信息字符串，它为这个线程返回一个私有拷贝。这可能是一些永久的全局数据，也可能是在用户提供的缓存中的消息字符串，以BUF起始，长度为N字节。
+     The function ‘strerror’ is declared in ‘string.h’.
+     
+     strerror在string.h中声明。
 
-		At most N characters are written (including the NUL byte) so it is up to the user to select the buffer large enough.
-		最多N个字符可以写入（包含NUL字节），因此需要用户来决定缓存是否足够大。
+ -- Function: char * strerror_r (int ERRNUM, char *BUF, size_t N)
+ 
+ -- 函数：char * strerror_r (int ERRNUM, char *BUF, size_t N)
 
-		This function should always be used in multi-threaded programs since there is no way to guarantee the string returned by `strerror' really belongs to the last call of the current thread.
-		此函数在多线程中也总是可用，由于没有办法保证strerror返回的字符串总是属于当前线程的最后一个调用函数。
+     Preliminary: | MT-Safe | AS-Unsafe i18n | AC-Unsafe | *Note POSIX
+     Safety Concepts::.
+
+     The ‘strerror_r’ function works like ‘strerror’ but instead of
+     returning the error message in a statically allocated buffer shared
+     by all threads in the process, it returns a private copy for the
+     thread.  This might be either some permanent global data or a
+     message string in the user supplied buffer starting at BUF with the
+     length of N bytes.
+     
+     strerror_r和strerror类似，但并不返回进程中所有线程共享的静态内存中的错误信息字符串，它为这个线程返回一个私有拷贝。这可能是一些永久的全局数据，也可能是在用户提供的缓存中的消息字符串，以BUF起始，长度为N字节。
+
+     At most N characters are written (including the NUL byte) so it is
+     up to the user to select a buffer large enough.
+     
+     最多N个字符可以写入（包含NUL字节），因此需要用户来决定缓存是否足够大。
+
+     This function should always be used in multi-threaded programs
+     since there is no way to guarantee the string returned by
+     ‘strerror’ really belongs to the last call of the current thread.
+     
+     此函数在多线程中也总是可用，由于没有办法保证strerror返回的字符串总是属于当前线程的最后一个调用函数。
 		
-		This function `strerror_r' is a GNU extension and it is declared in `string.h'.
-		strerror_r函数是GNU扩展，在sting.h中声明。
+     The function ‘strerror_r’ is a GNU extension and it is declared in
+     ‘string.h’.
+     
+     strerror_r函数是GNU扩展，在sting.h中声明。
 
-	-- Function: void perror (const char *MESSAGE)
-	-- 函数： void perror (const char *MESSAGE)
-		This function prints an error message to the stream `stderr'; see *note Standard Streams::.  The orientation of `stderr' is not changed.
-		此函数将错误信息打印到流stderr中；参见标准流。 stderr的目标没有改变。
+ -- Function: void perror (const char *MESSAGE)
+ 
+ -- 函数： void perror (const char *MESSAGE)
 
-		If you call `perror' with a MESSAGE that is either a null pointer or an empty string, `perror' just prints the error message corresponding to `errno', adding a trailing newline.
-		如果传入perror的参数是一个空指针或者空字符串，perror将根据errno打印相应信息并在尾部添加换行符。
+     Preliminary: | MT-Safe race:stderr | AS-Unsafe corrupt i18n heap
+     lock | AC-Unsafe corrupt lock mem fd | *Note POSIX Safety
+     Concepts::.
 
-		If you supply a non-null MESSAGE argument, then `perror' prefixes its output with this string.  It adds a colon and a space character to separate the MESSAGE from the error string corresponding to `errno'.
-		如果传入一个非空消息，perror将会在输出中将此消息为前缀。它添加一个冒号和空格来分隔此消息和errno的相对应消息。
+     This function prints an error message to the stream ‘stderr’; see
+     *note Standard Streams::.  The orientation of ‘stderr’ is not
+     changed.
+     
+     此函数将错误信息打印到流stderr中；参见标准流。 stderr的目标没有改变。
 
-		The function `perror' is declared in `stdio.h'.
-		函数perror在stdio.h中声明。
+     If you call ‘perror’ with a MESSAGE that is either a null pointer
+     or an empty string, ‘perror’ just prints the error message
+     corresponding to ‘errno’, adding a trailing newline.
+     
+     如果传入perror的参数是一个空指针或者空字符串，perror将根据errno打印相应信息并在尾部添加换行符。
 
-		`strerror' and `perror' produce the exact same message for any given error code; the precise text varies from system to system.  On the GNU system, the messages are fairly short; there are no multi-line messages or embedded newlines.  Each error message begins with a capital letter and does not include any terminating punctuation.
-		strerror和perror对于所有错误码的输出信息完全相同；在所有系统上都几乎相同。在GNU系统，输出信息稍微短些；没有多行信息或者嵌入的新行符。每一个错误信息开头字母都大写并没有任何终结符。
+     If you supply a non-null MESSAGE argument, then ‘perror’ prefixes
+     its output with this string.  It adds a colon and a space character
+     to separate the MESSAGE from the error string corresponding to
+     ‘errno’.
+     
+     如果传入一个非空消息，perror将会在输出中将此消息为前缀。它添加一个冒号和空格来分隔此消息和errno的相对应消息。
 
-		*Compatibility Note:* The `strerror' function was introduced in ISO C89.  Many older C systems do not support this function yet.
-		兼容性：strerror函数在 ISO C89引入。 很多老的C系统还不支持。
+     The function ‘perror’ is declared in ‘stdio.h’.
+     
+     函数perror在stdio.h中声明。
+
+   ‘strerror’ and ‘perror’ produce the exact same message for any given
+error code; the precise text varies from system to system.  With the GNU
+C Library, the messages are fairly short; there are no multi-line
+messages or embedded newlines.  Each error message begins with a capital
+letter and does not include any terminating punctuation.
+   
+   strerror和perror对于所有错误码的输出信息完全相同；在所有系统上都几乎相同。在GNU系统，输出信息稍微短些；没有多行信息或者嵌入的新行符。每一个错误信息开头字母都大写并没有任何终结符。
+
 		
-		Many programs that don't read input from the terminal are designed to exit if any system call fails.  By convention, the error message from such a program should start with the program's name, sans directories. You can find that name in the variable `program_invocation_short_name'; the full file name is stored the variable `program_invocation_name'.
-		很多不从终端输入的程序如果任何系统调用失败就退出。按照惯例，这些程序输出的错误程序应该以程序名开头，不包含路径。可以从变量program_invocation_short_name中读取；文件全名保存在变量program_invocation_name中。
+   Many programs that don’t read input from the terminal are designed to
+exit if any system call fails.  By convention, the error message from
+such a program should start with the program’s name, sans directories.
+You can find that name in the variable ‘program_invocation_short_name’;
+the full file name is stored the variable ‘program_invocation_name’.
 
-	-- Variable: char * program_invocation_name
-	-- 变量：char * program_invocation_name
-		This variable's value is the name that was used to invoke the program running in the current process.  It is the same as `argv[0]'.  Note that this is not necessarily a useful file name; often it contains no directory names.  *Note Program Arguments::.
-		此变量的值用来引用当前进程中运行的程序名称。它和arv[0]一样。注意这并不必要是一个有用的文件名；通常不包含路径名。* 参见程序参数 *
+   很多不从终端输入的程序如果任何系统调用失败就退出。按照惯例，这些程序输出的错误程序应该以程序名开头，不包含路径。可以从变量program_invocation_short_name中读取；文件全名保存在变量program_invocation_name中。
 
-	-- Variable: char * program_invocation_short_name
-	-- 变量：char * program_invocation_short_name
-		This variable's value is the name that was used to invoke the program running in the current process, with directory names removed.  (That is to say, it is the same as `program_invocation_name' minus everything up to the last slash, if any.)
-		此变量的值用来引用当前进程中运行的程序名称，不包含路径名。（这意味着，它是program_invocation_name的最小集合。）
+ -- Variable: char * program_invocation_name
+ 
+ -- 变量：char * program_invocation_name
 
-		The library initialization code sets up both of these variables before calling `main'.
-		库初始化的时候，执行main之前会设定两个变量。
+     This variable’s value is the name that was used to invoke the
+     program running in the current process.  It is the same as
+     ‘argv[0]’.  Note that this is not necessarily a useful file name;
+     often it contains no directory names.  *Note Program Arguments::.
+     
+     此变量的值用来引用当前进程中运行的程序名称。它和arv[0]一样。注意这并不必要是一个有用的文件名；通常不包含路径名。* 参见程序参数 *
 
-		*Portability Note:* These two variables are GNU extensions.  If you want your program to work with non-GNU libraries, you must save the value of `argv[0]' in `main', and then strip off the directory names yourself.  We added these extensions to make it possible to write self-contained error-reporting subroutines that require no explicit cooperation from `main'.
-		* 移植性注释 * 这两个变量是GNU扩展。如果希望程序兼容非GNU库，程序必须在main函数中保存argv[0]，并且自己抽取路径名。添加这些扩展是为了不借助main函数的协助来实现完备的错误报告子程序。
+     This variable is a GNU extension and is declared in ‘errno.h’.
 
-		Here is an example showing how to handle failure to open a file correctly.  The function `open_sesame' tries to open the named file for reading and returns a stream if successful.  The `fopen' library function returns a null pointer if it couldn't open the file for some reason.  In that situation, `open_sesame' constructs an appropriate error message using the `strerror' function, and terminates the program.  If we were going to make some other library calls before passing the error code to `strerror', we'd have to save it in a local variable instead, because those other library functions might overwrite `errno' in the meantime.
-		下面的例子展示了如何正确处理打开文件的错误。函数open_sesame尝试打开文件以读取到一个流中。fopen库函数如果由于某些原因无法读取文件时会返回一个空指针。在这种情况下，open_sesam使用函数strerror构建一个恰当的错误消息，并终止程序。如果在传递参数给strerror之前执行一些其他库函数调用，我们必须将其保存在本地变量中，因为其他库函数可能会复写errno。
+     此变量是一个GNU扩展在'errno.h'中声明。
+
+ -- Variable: char * program_invocation_short_name
+ 
+ -- 变量：char * program_invocation_short_name
+
+     This variable’s value is the name that was used to invoke the
+     program running in the current process, with directory names
+     removed.  (That is to say, it is the same as
+     ‘program_invocation_name’ minus everything up to the last slash, if
+     any.)
+
+     此变量的值用来引用当前进程中运行的程序名称，不包含路径名。（这意味着，它是program_invocation_name的最小集合。）
+
+     This variable is a GNU extension and is declared in ‘errno.h’.
+
+     此变量是一个GNU扩展在'errno.h'中声明。
+
+
+   The library initialization code sets up both of these variables
+before calling ‘main’.
+
+   库初始化的时候，执行main之前会设定两个变量。
+
+   *Portability Note:* If you want your program to work with non-GNU
+libraries, you must save the value of ‘argv[0]’ in ‘main’, and then
+strip off the directory names yourself.  We added these extensions to
+make it possible to write self-contained error-reporting subroutines
+that require no explicit cooperation from ‘main’.
+
+   * 移植性注释 * 这两个变量是GNU扩展。如果希望程序兼容非GNU库，程序必须在main函数中保存argv[0]，并且自己抽取路径名。添加这些扩展是为了不借助main函数的协助来实现完备的错误报告子程序。
+
+   Here is an example showing how to handle failure to open a file
+correctly.  The function ‘open_sesame’ tries to open the named file for
+reading and returns a stream if successful.  The ‘fopen’ library
+function returns a null pointer if it couldn’t open the file for some
+reason.  In that situation, ‘open_sesame’ constructs an appropriate
+error message using the ‘strerror’ function, and terminates the program.
+If we were going to make some other library calls before passing the
+error code to ‘strerror’, we’d have to save it in a local variable
+instead, because those other library functions might overwrite ‘errno’
+in the meantime.
+
+下面的例子展示了如何正确处理打开文件的错误。函数open_sesame尝试打开文件以读取到一个流中。fopen库函数如果由于某些原因无法读取文件时会返回一个空指针。在这种情况下，open_sesam使用函数strerror构建一个恰当的错误消息，并终止程序。如果在传递参数给strerror之前执行一些其他库函数调用，我们必须将其保存在本地变量中，因为其他库函数可能会复写errno。
+
+     #define _GNU_SOURCE
 
      #include <errno.h>
      #include <stdio.h>
@@ -3395,66 +3806,167 @@ The library has functions and variables designed to make it easy for your progra
          return stream;
      }
 
-		Using `perror' has the advantage that the function is portable and available on all systems implementing ISO C.  But often the text `perror' generates is not what is wanted and there is no way to extend or change what `perror' does.  The GNU coding standard, for instance, requires error messages to be preceded by the program name and programs which read some input files should should provide information about the input file name and the line number in case an error is encountered while reading the file.  For these occasions there are two functions available which are widely used throughout the GNU project.  These functions are declared in `error.h'.
-		使用perror的优点在于此函数是可移植的并且在所有支持ISO C的系统上都可用。但是通常perror的产生可期望的并不相同而且也没有什么办法扩展perror的行为。例如，GNU编码标准要求在读取文件碰到错误时，需要给错误信息前加上程序名称和程序读取的输入文件名和行号。这样的情况下，有两个函数被广泛使用。在error.h中有其声明。
+   Using ‘perror’ has the advantage that the function is portable and
+available on all systems implementing ISO C. But often the text ‘perror’
+generates is not what is wanted and there is no way to extend or change
+what ‘perror’ does.  The GNU coding standard, for instance, requires
+error messages to be preceded by the program name and programs which
+read some input files should provide information about the input file
+name and the line number in case an error is encountered while reading
+the file.  For these occasions there are two functions available which
+are widely used throughout the GNU project.  These functions are
+declared in ‘error.h’.
+   使用perror的优点在于此函数是可移植的并且在所有支持ISO C的系统上都可用。但是通常perror的产生可期望的并不相同而且也没有什么办法扩展perror的行为。例如，GNU编码标准要求在读取文件碰到错误时，需要给错误信息前加上程序名称和程序读取的输入文件名和行号。这样的情况下，有两个函数被广泛使用。在error.h中有其声明。
 
-	-- Function: void error (int STATUS, int ERRNUM, const char *FORMAT,...)
+ -- Function: void error (int STATUS, int ERRNUM, const char *FORMAT,
+          ...)
+
 	-- 函数: void error (int STATUS, int ERRNUM, const char *FORMAT,...)
-		The `error' function can be used to report general problems during program execution.  The FORMAT argument is a format string just like those given to the `printf' family of functions.  The arguments required for the format can follow the FORMAT parameter. Just like `perror', `error' also can report an error code in textual form.  But unlike `perror' the error value is explicitly passed to the function in the ERRNUM parameter.  This eliminates the problem mentioned above that the error reporting function must be called immediately after the function causing the error since otherwise `errno' might have a different value.
-		error函数可用来报告程序执行中通常的问题。FORMAT参数是一个格式化的字符串，类似printf族的参数。参数格式遵从FORMAT参数。想perror一样，error也用文本形式产生错误码。但和perror不同的是，error值明确的通过ERRNUM参数传递。这消除了上面提到的出错后必须马上调用error函数，否则errno可能会是不同值的问题。
 
-		The `error' prints first the program name.  If the application defined a global variable `error_print_progname' and points it to a function this function will be called to print the program name. Otherwise the string from the global variable `program_name' is used.  The program name is followed by a colon and a space which in turn is followed by the output produced by the format string. If the ERRNUM parameter is non-zero the format string output is followed by a colon and a space, followed by the error message for the error code ERRNUM.  In any case is the output terminated with a newline.
-		error首先打印程序名。如果程序定义了一个全局变量error_print_progname并指向一个函数，那这个函数将被调用来打印其程序名。否则全局变量program_name将被用来打印。程序名后是一个冒号加一个空格，依次接下来就是格式化的输出字符串。如果ERRNUM参数非零，则输出字符串之后是冒号和空格，再接着就是错误信息的错误码。在任何情况下，输出都以一个新行终止。
+     Preliminary: | MT-Safe locale | AS-Unsafe corrupt heap i18n |
+     AC-Safe | *Note POSIX Safety Concepts::.
 
-		The output is directed to the `stderr' stream.  If the `stderr' wasn't oriented before the call it will be narrow-oriented afterwards.
-		输出被定向到stderr流。如果stderr没有在调用前指向，接下来它将会被勉强指向。
+     The ‘error’ function can be used to report general problems during
+     program execution.  The FORMAT argument is a format string just
+     like those given to the ‘printf’ family of functions.  The
+     arguments required for the format can follow the FORMAT parameter.
+     Just like ‘perror’, ‘error’ also can report an error code in
+     textual form.  But unlike ‘perror’ the error value is explicitly
+     passed to the function in the ERRNUM parameter.  This eliminates
+     the problem mentioned above that the error reporting function must
+     be called immediately after the function causing the error since
+     otherwise ‘errno’ might have a different value.
+     
+     error函数可用来报告程序执行中通常的问题。FORMAT参数是一个格式化的字符串，类似printf族的参数。参数格式遵从FORMAT参数。想perror一样，error也用文本形式产生错误码。但和perror不同的是，error值明确的通过ERRNUM参数传递。这消除了上面提到的出错后必须马上调用error函数，否则errno可能会是不同值的问题。
 
-	 	The function will return unless the STATUS parameter has a non-zero value.  In this case the function will call `exit' with the STATUS value for its parameter and therefore never return.  If `error' returns the global variable `error_message_count' is incremented by one to keep track of the number of errors reported.
-		如果STATUS参数是一个非零值，此函数将返回。在这种情况下函数将调用exit，并以STATUS作为其参数，因此而不返回。如果error返回，全局变量error_message_count将增量的记录错误信息的次数。
+     ‘error’ prints first the program name.  If the application defined
+     a global variable ‘error_print_progname’ and points it to a
+     function this function will be called to print the program name.
+     Otherwise the string from the global variable ‘program_name’ is
+     used.  The program name is followed by a colon and a space which in
+     turn is followed by the output produced by the format string.  If
+     the ERRNUM parameter is non-zero the format string output is
+     followed by a colon and a space, followed by the error message for
+     the error code ERRNUM.  In any case is the output terminated with a
+     newline.
+     
+     error首先打印程序名。如果程序定义了一个全局变量error_print_progname并指向一个函数，那这个函数将被调用来打印其程序名。否则全局变量program_name将被用来打印。程序名后是一个冒号加一个空格，依次接下来就是格式化的输出字符串。如果ERRNUM参数非零，则输出字符串之后是冒号和空格，再接着就是错误信息的错误码。在任何情况下，输出都以一个新行终止。
 
-	-- Function: void error_at_line (int STATUS, int ERRNUM, const char *FNAME, unsigned int LINENO, const char *FORMAT, ...)
-	-- 函数: void error_at_line (int STATUS, int ERRNUM, const char *FNAME, unsigned int LINENO, const char *FORMAT, ...)
-		The `error_at_line' function is very similar to the `error' function.  The only difference are the additional parameters FNAME and LINENO.  The handling of the other parameters is identical to that of `error' except that between the program name and the string generated by the format string additional text is inserted.
-		error_at_line 函数和error函数很像。区别仅在于额外的参数FNAME和LINENO。除了程序名称和格式化产生的字符串之外，在处理其他参数都相同。
+     The output is directed to the ‘stderr’ stream.  If the ‘stderr’
+     wasn’t oriented before the call it will be narrow-oriented
+     afterwards.
+     输出被定向到stderr流。如果stderr没有在调用前指向，接下来它将会被勉强指向。
+     
 
-		Directly following the program name a colon, followed by the file name pointer to by FNAME, another colon, and a value of LINENO is printed.
-		在程序名称后面紧跟着一个冒号，后面跟着文件名指针指向的FNAME，再一个冒号，和一个LINENO的值。
+     The function will return unless the STATUS parameter has a non-zero
+     value.  In this case the function will call ‘exit’ with the STATUS
+     value for its parameter and therefore never return.  If ‘error’
+     returns, the global variable ‘error_message_count’ is incremented
+     by one to keep track of the number of errors reported.
 
-		This additional output of course is meant to be used to locate an error in an input file (like a programming language source code file etc).
-		这些额外的输出通常被用于在一个输入文件（例如某编程语言的源文件）中定位错误。
+     如果STATUS参数是一个非零值，此函数将返回。在这种情况下函数将调用exit，并以STATUS作为其参数，因此而不返回。如果error返回，全局变量error_message_count将增量的记录错误信息的次数。
 
-		If the global variable `error_one_per_line' is set to a non-zero value `error_at_line' will avoid printing consecutive messages for the same file and line.  Repetition which are not directly following each other are not caught.
-		如果全局变量error_one_per_line设定为非零值，error_at_lin将不打印连续文件名和行号信息。
 
-		Just like `error' this function only returned if STATUS is zero. Otherwise `exit' is called with the non-zero value.  If `error'returns the global variable `error_message_count' is incremented by one to keep track of the number of errors reported.
-		例如error函数仅仅在STATUS为零时返回。此外exit以非零值返回。如果error返回，全局变量error_message_count自加一来跟踪错误报告的次数。
 
-		As mentioned above the `error' and `error_at_line' functions can be customized by defining a variable named `error_print_progname'.
-		如上所述error和error_at_line函数能够通过定义error_print_progname来自定义。
+ -- Function: void error_at_line (int STATUS, int ERRNUM, const char
+          *FNAME, unsigned int LINENO, const char *FORMAT, ...)
+ 
+ -- 函数: void error_at_line (int STATUS, int ERRNUM, const char *FNAME, unsigned int LINENO, const char *FORMAT, ...)
 
-	-- Variable: void (* error_print_progname ) (void)
-	-- 变量： void (* error_print_progname ) (void)
-		If the `error_print_progname' variable is defined to a non-zero value the function pointed to is called by `error' or `error_at_line'.  It is expected to print the program name or do something similarly useful.
-		如果变量error_print_progname定义为非零值，并被指向error或者error_at_line。它将被用来打印程序名称之类的有用的信息。
+     Preliminary: | MT-Unsafe race:error_at_line/error_one_per_line
+     locale | AS-Unsafe corrupt heap i18n | AC-Unsafe
+     corrupt/error_one_per_line | *Note POSIX Safety Concepts::.
 
-		The function is expected to be print to the `stderr' stream and must be able to handle whatever orientation the stream has.
-		此函数用来打印到stderr流中，并处理任何重定向到这个流中的数据。
+     The ‘error_at_line’ function is very similar to the ‘error’
+     function.  The only differences are the additional parameters FNAME
+     and LINENO.  The handling of the other parameters is identical to
+     that of ‘error’ except that between the program name and the string
+     generated by the format string additional text is inserted.
+     
+     error_at_line 函数和error函数很像。区别仅在于额外的参数FNAME和LINENO。除了程序名称和格式化产生的字符串之外，在处理其他参数都相同。
 
-		The variable is global and shared by all threads.
-		此全局函数被所有线程共享。
+     Directly following the program name a colon, followed by the file
+     name pointed to by FNAME, another colon, and the value of LINENO is
+     printed.
+     
+     在程序名称后面紧跟着一个冒号，后面跟着文件名指针指向的FNAME，再一个冒号，和一个LINENO的值。
 
-	-- Variable: unsigned int error_message_count
-	-- 变量：unsigned int error_message_count
-		The `error_message_count' variable is incremented whenever one of the functions `error' or `error_at_line' returns.  The variable is global and shared by all threads.
-		error或者error_at_line任何一个返回，error_message_count变量就自加。此全局变量被所有线程共享。
+     This additional output of course is meant to be used to locate an
+     error in an input file (like a programming language source code
+     file etc).
+     
+     这些额外的输出通常被用于在一个输入文件（例如某编程语言的源文件）中定位错误。
 
-	-- Variable: int error_one_per_line
-	-- 变量：int error_one_per_line
-		The `error_one_per_line' variable influences only `error_at_line'. Normally the `error_at_line' function creates output for every invocation.  If `error_one_per_line' is set to a non-zero value `error_at_line' keeps track of the last file name and line number for which an error was reported and avoid directly following messages for the same file and line.  This variable is global and shared by all threads.
-		error_one_per_line仅对error_at_line有影响。通常error_at_line对于每次调用产生输出。如果error_one_per_line设置为非零值，error_at_line保留最后出错的文件名和行号，也避免直接跟着这些消息。这个变量全局有效并对所有线程共享。
+     If the global variable ‘error_one_per_line’ is set to a non-zero
+     value ‘error_at_line’ will avoid printing consecutive messages for
+     the same file and line.  Repetition which are not directly
+     following each other are not caught.
+     
+     如果全局变量error_one_per_line设定为非零值，error_at_lin将不打印连续文件名和行号信息。
 
-		A program which read some input file and reports errors in it could look like this:
-		如果一个读取输入文件的如下报错：
+     Just like ‘error’ this function only returns if STATUS is zero.
+     Otherwise ‘exit’ is called with the non-zero value.  If ‘error’
+     returns, the global variable ‘error_message_count’ is incremented
+     by one to keep track of the number of errors reported.
+     
+     例如error函数仅仅在STATUS为零时返回。此外exit以非零值返回。如果error返回，全局变量error_message_count自加一来跟踪错误报告的次数。
+
+   As mentioned above, the ‘error’ and ‘error_at_line’ functions can be
+customized by defining a variable named ‘error_print_progname’.
+
+   如上所述error和error_at_line函数能够通过定义error_print_progname来自定义。
+
+ -- Variable: void (*error_print_progname) (void)
+
+ -- 变量： void (* error_print_progname ) (void)
+     
+     If the ‘error_print_progname’ variable is defined to a non-zero
+     value the function pointed to is called by ‘error’ or
+     ‘error_at_line’.  It is expected to print the program name or do
+     something similarly useful.
+     
+     如果变量error_print_progname定义为非零值，并被指向error或者error_at_line。它将被用来打印程序名称之类的有用的信息。
+
+     The function is expected to print to the ‘stderr’ stream and must
+     be able to handle whatever orientation the stream has.
+     
+     此函数用来打印到stderr流中，并处理任何重定向到这个流中的数据。
+
+     The variable is global and shared by all threads.
+     
+     此全局函数被所有线程共享。
+
+
+ -- Variable: unsigned int error_message_count
+
+ -- 变量：unsigned int error_message_count
+
+     The ‘error_message_count’ variable is incremented whenever one of
+     the functions ‘error’ or ‘error_at_line’ returns.  The variable is
+     global and shared by all threads.
+		
+     error或者error_at_line任何一个返回，error_message_count变量就自加。此全局变量被所有线程共享。
+
+ -- Variable: int error_one_per_line
+
+ -- 变量：int error_one_per_line
+
+
+     The ‘error_one_per_line’ variable influences only ‘error_at_line’.
+     Normally the ‘error_at_line’ function creates output for every
+     invocation.  If ‘error_one_per_line’ is set to a non-zero value
+     ‘error_at_line’ keeps track of the last file name and line number
+     for which an error was reported and avoids directly following
+     messages for the same file and line.  This variable is global and
+     shared by all threads.
+
+error_one_per_line仅对error_at_line有影响。通常error_at_line对于每次调用产生输出。如果error_one_per_line设置为非零值，error_at_line保留最后出错的文件名和行号，也避免直接跟着这些消息。这个变量全局有效并对所有线程共享。
+
+A program which read some input file and reports errors in it could look
+like this:
+
+如果一个读取输入文件的如下报错：
+
 
      {
        char *line = NULL;
@@ -3482,66 +3994,89 @@ The library has functions and variables designed to make it easy for your progra
          error (EXIT_FAILURE, 0, "%u errors found", error_message_count);
      }
 
-   'error' and 'error_at_line' are clearly the functions of choice and
+   ‘error’ and ‘error_at_line’ are clearly the functions of choice and
 enable the programmer to write applications which follow the GNU coding
 standard.  The GNU C Library additionally contains functions which are
 used in BSD for the same purpose.  These functions are declared in
-'err.h'.  It is generally advised to not use these functions.  They are
+‘err.h’.  It is generally advised to not use these functions.  They are
 included only for compatibility.
 
-		`error' and `error_at_line' are clearly the functions of choice and enable the programmer to write applications which follow the GNU coding standard.  The GNU libc additionally contains functions which are used in BSD for the same purpose.  These functions are declared in `err.h'. It is generally advised to not use these functions.  They are included only for compatibility.
-		error和error_at_liner清晰提供了选择功能并让程序员编写符合GNU编码规范的程序。
+error和error_at_liner清晰提供了选择功能并让程序员编写符合GNU编码规范的程序。
 
-	-- Function: void warn (const char *FORMAT, ...)
-		The `warn' function is roughly equivalent to a call like error (0, errno, format, the parameters) except that the global variables `error' respects and modifies are not used.
-		warn函数大体上和调用error(0, errno, format, the parameters)相同，除了全局变量error方便及其修改不可用。
+ -- Function: void warn (const char *FORMAT, ...)
 
-	-- Function: void vwarn (const char *FORMAT, va_list)
-		The `vwarn' function is just like `warn' except that the parameters for the handling of the format string FORMAT are passed in as an value of type `va_list'.
-		vwarn函数类似warn，但参数中处理string格式是通过va_list类型的一个值传递。
+     Preliminary: | MT-Safe locale | AS-Unsafe corrupt heap i18n |
+     AC-Unsafe corrupt lock mem | *Note POSIX Safety Concepts::.
 
-	-- Function: void warnx (const char *FORMAT, ...)
-		The `warnx' function is roughly equivalent to a call like error (0, 0, format, the parameters) except that the global variables `error' respects and modifies are not used.  The difference to `warn' is that no error number string is printed.
-		warnx函数大致和error(0, 0, format, the parameters)一样，除非全局变量error等没有变更。和warn相比，warnx没有错误行号的打印。
+     The ‘warn’ function is roughly equivalent to a call like
+            error (0, errno, format, the parameters)
+     except that the global variables ‘error’ respects and modifies are
+     not used.
+     
+     warn函数大体上和调用error(0, errno, format, the parameters)相同，除了全局变量error方便及其修改不可用。
 
-	-- Function: void vwarnx (const char *FORMAT, va_list)
-		The `vwarnx' function is just like `warnx' except that the parameters for the handling of the format string FORMAT are passed in as an value of type `va_list'.
-		vwarnx函数和warnx类似，除了对于处理字符串格式的参数是通过va_list类型的一个值传递。
- 
-	-- Function: void err (int STATUS, const char *FORMAT, ...)
-		The `err' function is roughly equivalent to a call like error (status, errno, format, the parameters) except that the global variables `error' respects and modifies are not used and that the program is exited even if STATUS is zero.
-		err函数大体上和调用error（staus, errno, format, the parameters)类似，除了全局变量error没有修改，并且程序在STATUS为0的情况下退出。
 
-	-- Function: void verr (int STATUS, const char *FORMAT, va_list)
-		The `verr' function is just like `err' except that the parameters for the handling of the format string FORMAT are passed in as an value of type `va_list'.
-		verr函数和err一样，除了对于处理字符串格式的参数是通过va_list类型的一个值传递。
+ -- Function: void vwarn (const char *FORMAT, va_list AP)
 
-	-- Function: void errx (int STATUS, const char *FORMAT, ...)
-		The `errx' function is roughly equivalent to a call like error (status, 0, format, the parameters) except that the global variables `error' respects and modifies are not used and that the program is exited even if STATUS is zero.
-		errx函数大体和调用error一样。除了全局变量error没有修改，并且程序在STATUS为0的情况下退出。
+     Preliminary: | MT-Safe locale | AS-Unsafe corrupt heap i18n |
+     AC-Unsafe corrupt lock mem | *Note POSIX Safety Concepts::.
 
-		The difference to `err' is that no error number string is printed.
-		和err不同的是不打印错误行号。
+     The ‘vwarn’ function is just like ‘warn’ except that the parameters
+     for the handling of the format string FORMAT are passed in as a
+     value of type ‘va_list’.
+     
+     vwarn函数类似warn，但参数中处理string格式是通过va_list类型的一个值传递。
 
-	-- Function: void verrx (int STATUS, const char *FORMAT, va_list)
-	-- 函数：void verrx (int STATUS, const char *FORMAT, va_list)
-		The `verrx' function is just like `errx' except that the parameters for the handling of the format string FORMAT are passed in as an value of type `va_list'.
-		verrx函数很像errx，除了处理格式化字符串FORMAT的参数是通过va_list的一个值传递。
+ -- Function: void warnx (const char *FORMAT, ...)
 
-     The 'err' function is roughly equivalent to a call like
+     Preliminary: | MT-Safe locale | AS-Unsafe corrupt heap | AC-Unsafe
+     corrupt lock mem | *Note POSIX Safety Concepts::.
+
+     The ‘warnx’ function is roughly equivalent to a call like
+            error (0, 0, format, the parameters)
+     except that the global variables ‘error’ respects and modifies are
+     not used.  The difference to ‘warn’ is that no error number string
+     is printed.
+     
+     warnx函数大致和error(0, 0, format, the parameters)一样，除非全局变量error等没有变更。和warn相比，warnx没有错误行号的打印。
+
+
+ -- Function: void vwarnx (const char *FORMAT, va_list AP)
+
+     Preliminary: | MT-Safe locale | AS-Unsafe corrupt heap | AC-Unsafe
+     corrupt lock mem | *Note POSIX Safety Concepts::.
+
+     The ‘vwarnx’ function is just like ‘warnx’ except that the
+     parameters for the handling of the format string FORMAT are passed
+     in as a value of type ‘va_list’.
+     
+     vwarnx函数和warnx类似，除了对于处理字符串格式的参数是通过va_list类型的一个值传递。
+
+ -- Function: void err (int STATUS, const char *FORMAT, ...)
+
+     Preliminary: | MT-Safe locale | AS-Unsafe corrupt heap i18n |
+     AC-Unsafe corrupt lock mem | *Note POSIX Safety Concepts::.
+
+     The ‘err’ function is roughly equivalent to a call like
             error (status, errno, format, the parameters)
-     except that the global variables 'error' respects and modifies are
+     except that the global variables ‘error’ respects and modifies are
      not used and that the program is exited even if STATUS is zero.
+     
+     err函数大体上和调用error（staus, errno, format, the parameters)类似，除了全局变量error没有修改，并且程序在STATUS为0的情况下退出。
 
  -- Function: void verr (int STATUS, const char *FORMAT, va_list AP)
+
      Preliminary: | MT-Safe locale | AS-Unsafe corrupt heap i18n |
      AC-Unsafe corrupt lock mem | *Note POSIX Safety Concepts::.
 
      The ‘verr’ function is just like ‘err’ except that the parameters
      for the handling of the format string FORMAT are passed in as a
-     value of type 'va_list'.
+     value of type ‘va_list’.
+     
+     verr函数和err一样，除了对于处理字符串格式的参数是通过va_list类型的一个值传递。
 
  -- Function: void errx (int STATUS, const char *FORMAT, ...)
+
      Preliminary: | MT-Safe locale | AS-Unsafe corrupt heap | AC-Unsafe
      corrupt lock mem | *Note POSIX Safety Concepts::.
 
@@ -3550,6 +4085,9 @@ included only for compatibility.
      except that the global variables ‘error’ respects and modifies are
      not used and that the program is exited even if STATUS is zero.
      The difference to ‘err’ is that no error number string is printed.
+     
+     errx函数大体和调用error一样。除了全局变量error没有修改，并且程序在STATUS为0的情况下退出。
+     和err不同的是不打印错误行号。
 
  -- Function: void verrx (int STATUS, const char *FORMAT, va_list AP)
 
@@ -3559,55 +4097,140 @@ included only for compatibility.
      The ‘verrx’ function is just like ‘errx’ except that the parameters
      for the handling of the format string FORMAT are passed in as a
      value of type ‘va_list’.
+     verrx函数很像errx，除了处理格式化字符串FORMAT的参数是通过va_list的一个值传递。
+     
 3 Virtual Memory Allocation And Paging
 **************************************
 3 虚拟内存分配和分页
 
-	This chapter describes how processes manage and use memory in a system that uses the GNU C library.
-	本章讲述系统中的使用GNU C库的进程如何管理和使用内存。
+This chapter describes how processes manage and use memory in a system
+that uses the GNU C Library.
 
-	The GNU C Library has several functions for dynamically allocating virtual memory in various ways.  They vary in generality and in efficiency.  The library also provides functions for controlling paging and allocation of real memory.
-	GNU C 库拥有若干个函数用来动态分配虚拟内存，功能和性能各有不同。GNU C 库同时也提供了分页控制和真实内存分配。
+本章讲述系统中的使用GNU C库的进程如何管理和使用内存。
 
-	Memory mapped I/O is not discussed in this chapter.  *Note Memory-mapped I/O::.
+
+   The GNU C Library has several functions for dynamically allocating
+virtual memory in various ways.  They vary in generality and in
+efficiency.  The library also provides functions for controlling paging
+and allocation of real memory.
+
+   GNU C 库拥有若干个函数用来动态分配虚拟内存，功能和性能各有不同。GNU C 库同时也提供了分页控制和真实内存分配。
+
+   Memory mapped I/O is not discussed in this chapter.  *Note
+Memory-mapped I/O::.
 	内存映射I/O在本章并不涉及。
 
 3.1 Process Memory Concepts
 ===========================
 3.1 进程内存概念
 
-	One of the most basic resources a process has available to it is memory. There are a lot of different ways systems organize memory, but in a typical one, each process has one linear virtual address space, with addresses running from zero to some huge maximum.  It need not be contiguous; i.e., not all of these addresses actually can be used to store data.
-	一个进程所拥有的最基本的资源就是内存。系统有很多不同的方法组织内存，但一个最常见的方法是，每一个进程拥有一个线性的虚拟地址空间，从0地址到一些很大的地址值（译者注：对于不同的体系结构可能高地址不尽相同）。这些地址并不一定要求连续; 例如，并不是所有这些地址都真正能够用于存储数据。
+One of the most basic resources a process has available to it is memory.
+There are a lot of different ways systems organize memory, but in a
+typical one, each process has one linear virtual address space, with
+addresses running from zero to some huge maximum.  It need not be
+contiguous; i.e., not all of these addresses actually can be used to
+store data.
 
-	The virtual memory is divided into pages (4 kilobytes is typical). Backing each page of virtual memory is a page of real memory (called a "frame") or some secondary storage, usually disk space.  The disk space might be swap space or just some ordinary disk file.  Actually, a page of all zeroes sometimes has nothing at all backing it - there's just a flag saying it is all zeroes.  
-	虚拟内存分配若干个页（通常为4K）。虚拟地址的每一个页后面都对应一个真实内存（一个页帧）或者一些第二存储器，通常是磁盘空间。磁盘空间可能用作交换空间或者仅仅是一些磁盘文件。事实上全0的页有时完全没有真实的内存映射--尽有一个标志标示其全零。
+一个进程所拥有的最基本的资源就是内存。系统有很多不同的方法组织内存，但一个最常见的方法是，每一个进程拥有一个线性的虚拟地址空间，从0地址到一些很大的地址值（译者注：对于不同的体系结构可能高地址不尽相同）。这些地址并不一定要求连续; 例如，并不是所有这些地址都真正能够用于存储数据。
 
-	The same frame of real memory or backing store can back multiple virtual pages belonging to multiple processes.  This is normally the case, for example, with virtual memory occupied by GNU C library code. The same real memory frame containing the `printf' function backs a virtual memory page in each of the existing processes that has a `printf' call in its program.
-	真实内存的相同帧或者支持的存储器能够支持属于不同进程的多个虚拟页。这在使用GNU C库的代码使用的虚拟内存是常见的。真实内存帧中包含printf函数支持了虚拟内存页中每一个运行着的并且调用printf的进程。
+   The virtual memory is divided into pages (4 kilobytes is typical).
+Backing each page of virtual memory is a page of real memory (called a
+“frame”) or some secondary storage, usually disk space.  The disk space
+might be swap space or just some ordinary disk file.  Actually, a page
+of all zeroes sometimes has nothing at all backing it – there’s just a
+flag saying it is all zeroes.
 
-	In order for a program to access any part of a virtual page, the page must at that moment be backed by ("connected to") a real frame.  But because there is usually a lot more virtual memory than real memory, the pages must move back and forth between real memory and backing store regularly, coming into real memory when a process needs to access them and then retreating to backing store when not needed anymore.  This movement is called "paging".
-	为了支持一个程序访问一个虚拟页的任何部分，此虚拟页在当前时刻必须有一个真实的内存帧所映射。但由于虚拟内存通常总是要比真实内存大，因此虚拟页必须来回往复的在真实内存和存储器之前切换，当一个进程需要访问就调入真实内存;当不需要的时候就再写入存储区。这个过程就叫做寻址。
+   虚拟内存分配若干个页（通常为4K）。虚拟地址的每一个页后面都对应一个真实内存（一个页帧）或者一些第二存储器，通常是磁盘空间。磁盘空间可能用作交换空间或者仅仅是一些磁盘文件。事实上全0的页有时完全没有真实的内存映射--尽有一个标志标示其全零。
 
-	When a program attempts to access a page which is not at that moment backed by real memory, this is known as a "page fault".  When a page fault occurs, the kernel suspends the process, places the page into a real page frame (this is called "paging in" or "faulting in"), then resumes the process so that from the process' point of view, the page was in real memory all along.  In fact, to the process, all pages always seem to be in real memory.  Except for one thing: the elapsed execution time of an instruction that would normally be a few nanoseconds is suddenly much, much, longer (because the kernel normally has to do I/O to complete the page-in).  For programs sensitive to that, the functions described in *note Locking Pages:: can control it.  
-	当一个进程尝试访问一个真实内存中不存在的页面，这通常被叫做“缺页”。当缺页发生，内核暂停此进程，将该内存页装入内存帧（此被叫做“调入”），然后恢复进程运行。从进程的角度来看，进程所需的页面从是在真实内存中存在的。事实上，对于进程来说，所有的页面都总是在真实内存中。除了一件事情，执行指令的真实花费的时间可能略微长一些（由于内核在完成切换页面需要完成一些I/O操作）。对于一些对时间敏感的程序，在* Locking Pages*一节中描述的函数能够很好的控制。
+   The same frame of real memory or backing store can back multiple
+virtual pages belonging to multiple processes.  This is normally the
+case, for example, with virtual memory occupied by GNU C Library code.
+The same real memory frame containing the ‘printf’ function backs a
+virtual memory page in each of the existing processes that has a
+‘printf’ call in its program.
 
-	Within each virtual address space, a process has to keep track of what is at which addresses, and that process is called memory allocation.  Allocation usually brings to mind meting out scarce resources, but in the case of virtual memory, that's not a major goal, because there is generally much more of it than anyone needs.  Memory allocation within a process is mainly just a matter of making sure that the same byte of memory isn't used to store two different things.
-	在其虚拟地址空间内，每一个进程要保持跟踪地址内容，这被称为内存分配。分配通常要考虑有限的资源，但从虚拟地址的角度，这并不是主要考虑的内容，通常情况下虚拟内存总是比需要的内存多。一个进程的内存分配主要考虑的内容是相同地址的内存没有被用来保存两样不同的内容。
+   真实内存的相同帧或者支持的存储器能够支持属于不同进程的多个虚拟页。这在使用GNU C库的代码使用的虚拟内存是常见的。真实内存帧中包含printf函数支持了虚拟内存页中每一个运行着的并且调用printf的进程。
 
-	Processes allocate memory in two major ways: by exec and programmatically.  Actually, forking is a third way, but it's not very interesting.  *Note Creating a Process::.
-	进程分配内存的两种主要方法：通过exec和编程分配。事实上，fork是第三种方法，但这并不有趣。 *参考 创建一个进程*
+   In order for a program to access any part of a virtual page, the page
+must at that moment be backed by (“connected to”) a real frame.  But
+because there is usually a lot more virtual memory than real memory, the
+pages must move back and forth between real memory and backing store
+regularly, coming into real memory when a process needs to access them
+and then retreating to backing store when not needed anymore.  This
+movement is called “paging”.
+
+   为了支持一个程序访问一个虚拟页的任何部分，此虚拟页在当前时刻必须有一个真实的内存帧所映射。但由于虚拟内存通常总是要比真实内存大，因此虚拟页必须来回往复的在真实内存和存储器之前切换，当一个进程需要访问就调入真实内存;当不需要的时候就再写入存储区。这个过程就叫做寻址。
+
+   When a program attempts to access a page which is not at that moment
+backed by real memory, this is known as a “page fault”.  When a page
+fault occurs, the kernel suspends the process, places the page into a
+real page frame (this is called “paging in” or “faulting in”), then
+resumes the process so that from the process’ point of view, the page
+was in real memory all along.  In fact, to the process, all pages always
+seem to be in real memory.  Except for one thing: the elapsed execution
+time of an instruction that would normally be a few nanoseconds is
+suddenly much, much, longer (because the kernel normally has to do I/O
+to complete the page-in).  For programs sensitive to that, the functions
+described in *note Locking Pages:: can control it.
+
+当一个进程尝试访问一个真实内存中不存在的页面，这通常被叫做“缺页”。当缺页发生，内核暂停此进程，将该内存页装入内存帧（此被叫做“调入”），然后恢复进程运行。从进程的角度来看，进程所需的页面从是在真实内存中存在的。事实上，对于进程来说，所有的页面都总是在真实内存中。除了一件事情，执行指令的真实花费的时间可能略微长一些（由于内核在完成切换页面需要完成一些I/O操作）。对于一些对时间敏感的程序，在* Locking Pages*一节中描述的函数能够很好的控制。
+
+   Within each virtual address space, a process has to keep track of
+what is at which addresses, and that process is called memory
+allocation.  Allocation usually brings to mind meting out scarce
+resources, but in the case of virtual memory, that’s not a major goal,
+because there is generally much more of it than anyone needs.  Memory
+allocation within a process is mainly just a matter of making sure that
+the same byte of memory isn’t used to store two different things.
+
+   在其虚拟地址空间内，每一个进程要保持跟踪地址内容，这被称为内存分配。分配通常要考虑有限的资源，但从虚拟地址的角度，这并不是主要考虑的内容，通常情况下虚拟内存总是比需要的内存多。一个进程的内存分配主要考虑的内容是相同地址的内存没有被用来保存两样不同的内容。
+
+   Processes allocate memory in two major ways: by exec and
+programmatically.  Actually, forking is a third way, but it’s not very
+interesting.  *Note Creating a Process::.
+
+   进程分配内存的两种主要方法：通过exec和编程分配。事实上，fork是第三种方法，但这并不有趣。 *参考 创建一个进程*
 	
-	Exec is the operation of creating a virtual address space for a process, loading its basic program into it, and executing the program. It is done by the "exec" family of functions (e.g. `execl').  The operation takes a program file (an executable), it allocates space to load all the data in the executable, loads it, and transfers control to it.  That data is most notably the instructions of the program (the "text"), but also literals and constants in the program and even some variables: C variables with the static storage class (*note Memory Allocation and C::).  
-	Exec是为一个进程创建一个虚拟地址空间的操作，将其基本程序装入并执行。exec函数族都可以完成此功能。此操作打开一个（可行性）文件，分配空间以装载程序中所有数据，同时装载程序，将控制权交给将要执行的程序。这些数据大多是程序中可见的指令、常量、甚至包含静态存储类型的变量（参见 * 内存分配和C * ）
-	
-	Once that program begins to execute, it uses programmatic allocation to gain additional memory.  In a C program with the GNU C library, there are two kinds of programmatic allocation: automatic and dynamic.  *Note Memory Allocation and C::.
-	一旦程序准备运行，它就使用编程分配内存来获得额外的内存。在使用GNU C库的程序，有两种编程分配内存的方法：自动分配和动态分配。 * 参考内存分配和C * 
-	
-	Memory-mapped I/O is another form of dynamic virtual memory allocation.  Mapping memory to a file means declaring that the contents of certain range of a process' addresses shall be identical to the contents of a specified regular file.  The system makes the virtual memory initially contain the contents of the file, and if you modify the memory, the system writes the same modification to the file.  Note that due to the magic of virtual memory and page faults, there is no reason for the system to do I/O to read the file, or allocate real memory for its contents, until the program accesses the virtual memory. *Note Memory-mapped I/O::.  
-	内存映射 I/O是另外一种动态分配虚拟内存的形式。 将内容映射到一个文件意味着一个进程空间的一段地址范围的内容和特定文件的内容相同。系统将内存初始化为和文件内容相同，如果修改内存，系统将相同的修改写入文件。注意，考虑到虚拟内存和缺页的情况，程序使用虚拟内存之前，系统不能使用I/O来读文件，或者为其内容分配真实内存。
+   Exec is the operation of creating a virtual address space for a
+process, loading its basic program into it, and executing the program.
+It is done by the “exec” family of functions (e.g.  ‘execl’).  The
+operation takes a program file (an executable), it allocates space to
+load all the data in the executable, loads it, and transfers control to
+it.  That data is most notably the instructions of the program (the
+“text”), but also literals and constants in the program and even some
+variables: C variables with the static storage class (*note Memory
+Allocation and C::).
 
-	Just as it programmatically allocates memory, the program can programmatically deallocate ("free") it.  You can't free the memory that was allocated by exec.  When the program exits or execs, you might say that all its memory gets freed, but since in both cases the address space ceases to exist, the point is really moot.  *Note Program Termination::.  
-	能够编程分配内存，自然也就可以编程释放内存。被exec分配的内存不能人为手动释放。当程序退出或者execs，你可以认为所有其分配的内存都已经释放，由于两种情况的地址空间都结束退出，入口也真正释放。
+   Exec是为一个进程创建一个虚拟地址空间的操作，将其基本程序装入并执行。exec函数族都可以完成此功能。此操作打开一个（可行性）文件，分配空间以装载程序中所有数据，同时装载程序，将控制权交给将要执行的程序。这些数据大多是程序中可见的指令、常量、甚至包含静态存储类型的变量（参见 * 内存分配和C * ）
+	
+   Once that program begins to execute, it uses programmatic allocation
+to gain additional memory.  In a C program with the GNU C Library, there
+are two kinds of programmatic allocation: automatic and dynamic.  *Note
+Memory Allocation and C::.
+
+   一旦程序准备运行，它就使用编程分配内存来获得额外的内存。在使用GNU C库的程序，有两种编程分配内存的方法：自动分配和动态分配。 * 参考内存分配和C * 
+	
+   Memory-mapped I/O is another form of dynamic virtual memory
+allocation.  Mapping memory to a file means declaring that the contents
+of certain range of a process’ addresses shall be identical to the
+contents of a specified regular file.  The system makes the virtual
+memory initially contain the contents of the file, and if you modify the
+memory, the system writes the same modification to the file.  Note that
+due to the magic of virtual memory and page faults, there is no reason
+for the system to do I/O to read the file, or allocate real memory for
+its contents, until the program accesses the virtual memory.  *Note
+Memory-mapped I/O::.
+
+   内存映射 I/O是另外一种动态分配虚拟内存的形式。 将内容映射到一个文件意味着一个进程空间的一段地址范围的内容和特定文件的内容相同。系统将内存初始化为和文件内容相同，如果修改内存，系统将相同的修改写入文件。注意，考虑到虚拟内存和缺页的情况，程序使用虚拟内存之前，系统不能使用I/O来读文件，或者为其内容分配真实内存。
+
+   Just as it programmatically allocates memory, the program can
+programmatically deallocate (“free”) it.  You can’t free the memory that
+was allocated by exec.  When the program exits or execs, you might say
+that all its memory gets freed, but since in both cases the address
+space ceases to exist, the point is really moot.  *Note Program
+Termination::.
+
+   能够编程分配内存，自然也就可以编程释放内存。被exec分配的内存不能人为手动释放。当程序退出或者execs，你可以认为所有其分配的内存都已经释放，由于两种情况的地址空间都结束退出，入口也真正释放。
 
 	A process' virtual address space is divided into segments.  A segment is a contiguous range of virtual addresses.  Three important segments are:
 	一个进程的虚拟地址被分为若干个段。每个段都是一个连续的地址范围。三个重要的段是：
@@ -3642,49 +4265,104 @@ are:
 =======================================
 3.2 为程序数据分配存储空间
 
-This section covers how ordinary programs manage storage for their data, including the famous `malloc' function and some fancier facilities special the GNU C library and GNU Compiler.
+
+This section covers how ordinary programs manage storage for their data,
+including the famous ‘malloc’ function and some fancier facilities
+special to the GNU C Library and GNU Compiler.
+
 本节包含程序通常如何为其数据管理存储空间，包含了著名的malloc函数和一些GNU C库和GNU 编译器特别的功能。
 
 3.2.1 Memory Allocation in C Programs
 -------------------------------------
 3.2.1 在C 程序中分配内存
 
-The C language supports two kinds of memory allocation through the variables in C programs:
+The C language supports two kinds of memory allocation through the
+variables in C programs:
+
 C语言支持两种通过变量在程序中分配内存的方法。
 
-	* "Static allocation" is what happens when you declare a static or global variable.  Each static or global variable defines one block of space, of a fixed size.  The space is allocated once, when your program is started (part of the exec operation), and is never freed.  
-	* 静态分配是在声明一个静态或者全局变量的时候发生。每一个静态或者全局变量定义一块空间，大小固定。此空间仅在程序开始（exec的一部分）的时候分配一次，然后就再也不释放了。
+   • “Static allocation” is what happens when you declare a static or
+     global variable.  Each static or global variable defines one block
+     of space, of a fixed size.  The space is allocated once, when your
+     program is started (part of the exec operation), and is never
+     freed.
+     
+     * 静态分配是在声明一个静态或者全局变量的时候发生。每一个静态或者全局变量定义一块空间，大小固定。此空间仅在程序开始（exec的一部分）的时候分配一次，然后就再也不释放了。
 	
-	* "Automatic allocation" happens when you declare an automatic variable, such as a function argument or a local variable.  The space for an automatic variable is allocated when the compound statement containing the declaration is entered, and is freed when that compound statement is exited.  
-	* 自动分配当声明一个自动变量的时候发生，例如函数参数或者本地变量。自动变量的空间是在执行到相应语句段的时候分配，在相应语句段退出的时候释放。
+   • “Automatic allocation” happens when you declare an automatic
+     variable, such as a function argument or a local variable.  The
+     space for an automatic variable is allocated when the compound
+     statement containing the declaration is entered, and is freed when
+     that compound statement is exited.
+     
+     * 自动分配当声明一个自动变量的时候发生，例如函数参数或者本地变量。自动变量的空间是在执行到相应语句段的时候分配，在相应语句段退出的时候释放。
 
-	In GNU C, the size of the automatic storage can be an expression that varies.  In other C implementations, it must be a constant.
-	在GNU C中，自动存储空间的大小是可变的。在其他的C 环境中，其必须是一个常量。
+     In GNU C, the size of the automatic storage can be an expression
+     that varies.  In other C implementations, it must be a constant.
+     
+     在GNU C中，自动存储空间的大小是可变的。在其他的C 环境中，其必须是一个常量。
 
-	A third important kind of memory allocation, "dynamic allocation", is not supported by C variables but is available via GNU C library functions.  
-	第三种重要的内存分配，“动态分配”是不能通过变量分配的。但可以通过GNU C库函数完成。
+   A third important kind of memory allocation, “dynamic allocation”, is
+not supported by C variables but is available via GNU C Library
+functions.
+
+   第三种重要的内存分配，“动态分配”是不能通过变量分配的。但可以通过GNU C库函数完成。
 
 3.2.1.1 Dynamic Memory Allocation
 .................................
 3.2.1.1 动态内存分配
 
-	"Dynamic memory allocation" is a technique in which programs determine as they are running where to store some information.  You need dynamic allocation when the amount of memory you need, or how long you continue to need it, depends on factors that are not known before the program runs.
-	动态内存分配是一个程序在运行中决定如何其信息的一种技术。当需要内存的时候，你可以决定分配多大，或者持续多长时间。取决于程序运行时可能不可知的因素。
+“Dynamic memory allocation” is a technique in which programs determine
+as they are running where to store some information.  You need dynamic
+allocation when the amount of memory you need, or how long you continue
+to need it, depends on factors that are not known before the program
+runs.
 
-	For example, you may need a block to store a line read from an input file; since there is no limit to how long a line can be, you must allocate the memory dynamically and make it dynamically larger as you read more of the line.
-	例如，你可能需要一块空间来保存从文件读取的一行;由于没有限制能够读取多长，程序必须动态分配内存以满足读取更多数据时动态增大。
+动态内存分配是一个程序在运行中决定如何其信息的一种技术。当需要内存的时候，你可以决定分配多大，或者持续多长时间。取决于程序运行时可能不可知的因素。
 
-	Or, you may need a block for each record or each definition in the input data; since you can't know in advance how many there will be, you must allocate a new block for each record or definition as you read it.
-	或者，你可以需要为输入数据的每一个定义或者记录分配一块空间;由于没有办法预期需要内存空间数量; 你必须在读取的时候为每一个数据分配一个新的数据空间。
+   For example, you may need a block to store a line read from an input
+file; since there is no limit to how long a line can be, you must
+allocate the memory dynamically and make it dynamically larger as you
+read more of the line.
 
-	When you use dynamic allocation, the allocation of a block of memory is an action that the program requests explicitly.  You call a function or macro when you want to allocate space, and specify the size with an argument.  If you want to free the space, you do so by calling another function or macro.  You can do these things whenever you want, as often as you want.
-	当动态分配内存，程序请求内存块的分配动作是隐形的。如果释放内存，需要调用另外一个函数或者宏。这些函数可以任何时候、任意多次调用。
+例如，你可能需要一块空间来保存从文件读取的一行;由于没有限制能够读取多长，程序必须动态分配内存以满足读取更多数据时动态增大。
 
-	Dynamic allocation is not supported by C variables; there is no storage class "dynamic", and there can never be a C variable whose value is stored in dynamically allocated space.  The only way to get dynamically allocated memory is via a system call (which is generally via a GNU C library function call), and the only way to refer to dynamically allocated space is through a pointer.  Because it is less convenient, and because the actual process of dynamic allocation requires more computation time, programmers generally use dynamic allocation only when neither static nor automatic allocation will serve.
-	C语言不支持以变量形式动态分配内存; 没有“动态”的存储类型，并且从来也没有一个变量保存在动态存储空间内。获取动态存储空间的唯一方法是通过系统调用（通常是一个GNU C函数调用），并且引用动态空间地址也仅能通过指针。由于其使用并不方便，并且动态分配内存需要更多的计算时间，通常在没有办法使用静态变量或者自动变量无法使用的时候，程序员才会使用动态内存分配。
+   Or, you may need a block for each record or each definition in the
+input data; since you can’t know in advance how many there will be, you
+must allocate a new block for each record or definition as you read it.
 
-	For example, if you want to allocate dynamically some space to hold a `struct foobar', you cannot declare a variable of type `struct foobar' whose contents are the dynamically allocated space.  But you can declare a variable of pointer type `struct foobar *' and assign it the address of the space.  Then you can use the operators `*' and `->' on this pointer variable to refer to the contents of the space:
-	例如，如果希望动态分配一些空间来保存“struct foobar”，你不能声明一个struct foobar的类型变量来保存存储来动态空间的内容。但你可以通过一个struct foobar的类型的指针来引用其内容的空间地址：
+   或者，你可以需要为输入数据的每一个定义或者记录分配一块空间;由于没有办法预期需要内存空间数量; 你必须在读取的时候为每一个数据分配一个新的数据空间。
+
+   When you use dynamic allocation, the allocation of a block of memory
+is an action that the program requests explicitly.  You call a function
+or macro when you want to allocate space, and specify the size with an
+argument.  If you want to free the space, you do so by calling another
+function or macro.  You can do these things whenever you want, as often
+as you want.
+
+   当动态分配内存，程序请求内存块的分配动作是隐形的。如果释放内存，需要调用另外一个函数或者宏。这些函数可以任何时候、任意多次调用。
+
+   Dynamic allocation is not supported by C variables; there is no
+storage class “dynamic”, and there can never be a C variable whose value
+is stored in dynamically allocated space.  The only way to get
+dynamically allocated memory is via a system call (which is generally
+via a GNU C Library function call), and the only way to refer to
+dynamically allocated space is through a pointer.  Because it is less
+convenient, and because the actual process of dynamic allocation
+requires more computation time, programmers generally use dynamic
+allocation only when neither static nor automatic allocation will serve.
+
+   C语言不支持以变量形式动态分配内存; 没有“动态”的存储类型，并且从来也没有一个变量保存在动态存储空间内。获取动态存储空间的唯一方法是通过系统调用（通常是一个GNU C函数调用），并且引用动态空间地址也仅能通过指针。由于其使用并不方便，并且动态分配内存需要更多的计算时间，通常在没有办法使用静态变量或者自动变量无法使用的时候，程序员才会使用动态内存分配。
+
+   For example, if you want to allocate dynamically some space to hold a
+‘struct foobar’, you cannot declare a variable of type ‘struct foobar’
+whose contents are the dynamically allocated space.  But you can declare
+a variable of pointer type ‘struct foobar *’ and assign it the address
+of the space.  Then you can use the operators ‘*’ and ‘->’ on this
+pointer variable to refer to the contents of the space:
+
+例如，如果希望动态分配一些空间来保存“struct foobar”，你不能声明一个struct foobar的类型变量来保存存储来动态空间的内容。但你可以通过一个struct foobar的类型的指针来引用其内容的空间地址：
+
 
      {
        struct foobar *ptr
@@ -3737,30 +4415,49 @@ maintained in the GNU C Library wiki.  See
    It is possible to use your own custom ‘malloc’ instead of the
 built-in allocator provided by the GNU C Library.  *Note Replacing
 malloc::.
+
 3.2.3 Unconstrained Allocation
 ------------------------------
 3.2.2 无限制内存分配
 
-	The most general dynamic allocation facility is `malloc'.  It allows you to allocate blocks of memory of any size at any time, make them bigger or smaller at any time, and free the blocks individually at any time (or never).
-	最常用的动态内存分配方法就是malloc。它能够在任何时候分配任何大小的内存，并在任何时候都可以调整其大小，和释放其空间。
+The most general dynamic allocation facility is ‘malloc’.  It allows you
+to allocate blocks of memory of any size at any time, make them bigger
+or smaller at any time, and free the blocks individually at any time (or
+never).
+
+最常用的动态内存分配方法就是malloc。它能够在任何时候分配任何大小的内存，并在任何时候都可以调整其大小，和释放其空间。
 
 3.2.3.1 Basic Memory Allocation
 ...............................
 3.2.2.1 基本内存分配
 
-	To allocate a block of memory, call `malloc'.  The prototype for this function is in `stdlib.h'.  
-	为了分配内存一块内存，调用malloc。 函数原型在stdlib.h中。
+To allocate a block of memory, call ‘malloc’.  The prototype for this
+function is in ‘stdlib.h’.
 
-	-- Function: void * malloc (size_t SIZE)
+为了分配内存一块内存，调用malloc。 函数原型在stdlib.h中。
+
+
+ -- Function: void * malloc (size_t SIZE)
 	-- 函数：void * malloc (size_t SIZE)
-		This function returns a pointer to a newly allocated block SIZE bytes long, or a null pointer if the block could not be allocated.
-		函数范围新申请内存的地址指针; 没有申请到则返回空指针。
-		
-		The contents of the block are undefined; you must initialize it yourself (or use `calloc' instead; *note Allocating Cleared Space::).
-		内存块的内存没有定义;你必须自己初始化。（或者调用calloc，参考Allocating Cleared Space）
+     Preliminary: | MT-Safe | AS-Unsafe lock | AC-Unsafe lock fd mem |
+     *Note POSIX Safety Concepts::.
 
-		Normally you would cast the value as a pointer to the kind of object that you want to store in the block.  Here we show an example of doing so, and of initializing the space with zeros using the library function `memset' (*note Copying and Concatenation::):
-		通常需要将内存指针强转为期望存储的数据类型。下面是一个这样的例子，并使用库函数memset初始化为0 （参考Copying and Concatenation）
+     This function returns a pointer to a newly allocated block SIZE
+     bytes long, or a null pointer if the block could not be allocated.
+     
+     函数范围新申请内存的地址指针; 没有申请到则返回空指针。
+		
+   The contents of the block are undefined; you must initialize it
+yourself (or use ‘calloc’ instead; *note Allocating Cleared Space::).
+
+   内存块的内存没有定义;你必须自己初始化。（或者调用calloc，参考Allocating Cleared Space）
+
+Normally you would cast the value as a pointer to the kind of object
+that you want to store in the block.  Here we show an example of doing
+so, and of initializing the space with zeros using the library function
+‘memset’ (*note Copying Strings and Arrays::):
+
+通常需要将内存指针强转为期望存储的数据类型。下面是一个这样的例子，并使用库函数memset初始化为0 （参考Copying and Concatenation）
 
      struct foo *ptr;
      ...
@@ -3768,11 +4465,20 @@ malloc::.
      if (ptr == 0) abort ();
      memset (ptr, 0, sizeof (struct foo));
 
-	 You can store the result of `malloc' into any pointer variable without a cast, because ISO C automatically converts the type `void *' to another type of pointer when necessary.  But the cast is necessary in contexts other than assignment operators or if you might want your code to run in traditional C.
-	你也可以不强转malloc申请的内存，由于ISO C自动转化void *为其他所需的类型指针。但如果你希望你的代码能够跑在传统C的环境中，还是建议做必要的强制转换。
+   You can store the result of ‘malloc’ into any pointer variable
+without a cast, because ISO C automatically converts the type ‘void *’
+to another type of pointer when necessary.  But the cast is necessary in
+contexts other than assignment operators or if you might want your code
+to run in traditional C.
 
-	 Remember that when allocating space for a string, the argument to `malloc' must be one plus the length of the string.  This is because a string is terminated with a null character that doesn't count in the "length" of the string but does need space.  For example: 
-	记得为一个字符串申请内存，malloc的长度参数要比字符串长度多1. 这是由于字符串使用空字符来结束字符串，空字符不算长度但占用空间。
+   你也可以不强转malloc申请的内存，由于ISO C自动转化void *为其他所需的类型指针。但如果你希望你的代码能够跑在传统C的环境中，还是建议做必要的强制转换。
+
+   Remember that when allocating space for a string, the argument to
+‘malloc’ must be one plus the length of the string.  This is because a
+string is terminated with a null character that doesn’t count in the
+“length” of the string but does need space.  For example:
+
+   记得为一个字符串申请内存，malloc的长度参数要比字符串长度多1. 这是由于字符串使用空字符来结束字符串，空字符不算长度但占用空间。
 
 	 char *ptr;
      ...
@@ -3785,20 +4491,30 @@ malloc::.
 ............................
 3.2.2.2 malloc的例子
 
-	If no more space is available, `malloc' returns a null pointer.  You should check the value of _every_ call to `malloc'.  It is useful to write a subroutine that calls `malloc' and reports an error if the value is a null pointer, returning only if the value is nonzero.  This function is conventionally called `xmalloc'.  Here it is:
-	如果可用空间不足，malloc则返回一个空指针。你必须要检查每一个malloc的返回值。重新写一个子函数调用malloc，如果返回值为空指针则报一个错误值，仅在非零的时候正常返回。此函数通常叫做“xmalloc”。如下：
+
+If no more space is available, ‘malloc’ returns a null pointer.  You
+should check the value of _every_ call to ‘malloc’.  It is useful to
+write a subroutine that calls ‘malloc’ and reports an error if the value
+is a null pointer, returning only if the value is nonzero.  This
+function is conventionally called ‘xmalloc’.  Here it is:
+
+如果可用空间不足，malloc则返回一个空指针。你必须要检查每一个malloc的返回值。重新写一个子函数调用malloc，如果返回值为空指针则报一个错误值，仅在非零的时候正常返回。此函数通常叫做“xmalloc”。如下：
+
 
      void *
      xmalloc (size_t size)
      {
-       register void *value = malloc (size);
+       void *value = malloc (size);
        if (value == 0)
          fatal ("virtual memory exhausted");
        return value;
      }
 
-	Here is a real example of using `malloc' (by way of `xmalloc').  The function `savestring' will copy a sequence of characters into a newly allocated null-terminated string:
-	下面是一个使用malloc的实际例子（通过xmalloc的方式）。函数savestring将拷贝字符序列到一个新分配的字符串中。
+   Here is a real example of using ‘malloc’ (by way of ‘xmalloc’).  The
+function ‘savestring’ will copy a sequence of characters into a newly
+allocated null-terminated string:
+
+   下面是一个使用malloc的实际例子（通过xmalloc的方式）。函数savestring将拷贝字符序列到一个新分配的字符串中。
 
      char *
      savestring (const char *ptr, size_t len)
@@ -3808,23 +4524,45 @@ malloc::.
        return (char *) memcpy (value, ptr, len);
      }
 
-	The block that `malloc' gives you is guaranteed to be aligned so that it can hold any type of data.  In the GNU system, the address is always a multiple of eight on most systems, and a multiple of 16 on 64-bit systems.  Only rarely is any higher boundary (such as a page boundary) necessary; for those cases, use `memalign', `posix_memalign' or `valloc' (*note Aligned Memory Blocks::).
-	代码段malloc保证字节对其，其中可以保存任何类型的数据。在GNU系统中，此地址在大多数系统上总是保持8的整数倍，在64位系统上保持16的整数倍。仅仅是一些高一些的必要的边界（例如页边界）；为了这些情形，可使用memalign,posix_memalign或者valloc（参见 Aligned Memory Blocks）
+   The block that ‘malloc’ gives you is guaranteed to be aligned so that
+it can hold any type of data.  On GNU systems, the address is always a
+multiple of eight on 32-bit systems, and a multiple of 16 on 64-bit
+systems.  Only rarely is any higher boundary (such as a page boundary)
+necessary; for those cases, use ‘aligned_alloc’ or ‘posix_memalign’
+(*note Aligned Memory Blocks::).
 
-	Note that the memory located after the end of the block is likely to be in use for something else; perhaps a block already allocated by another call to `malloc'.  If you attempt to treat the block as longer than you asked for it to be, you are liable to destroy the data that `malloc' uses to keep track of its blocks, or you may destroy the contents of another block.  If you have already allocated a block and discover you want it to be bigger, use `realloc' (*note Changing Block Size::).
-	需要注意的是在分配内存的末端内存可能被用于其他用途；例如可能已经被其他应用使用malloc分配。如果试图自己管理内存的生命周期，可以自己跟踪管理内存块，或者可以销毁其他内存块的内容。如果你已经分配了内存块但发现需要更多的内存，可以使用realloc（参考Changing Block Size）
+   代码段malloc保证字节对其，其中可以保存任何类型的数据。在GNU系统中，此地址在大多数系统上总是保持8的整数倍，在64位系统上保持16的整数倍。仅仅是一些高一些的必要的边界（例如页边界）；为了这些情形，可使用memalign,posix_memalign或者valloc（参见 Aligned Memory Blocks）
+
+   Note that the memory located after the end of the block is likely to
+be in use for something else; perhaps a block already allocated by
+another call to ‘malloc’.  If you attempt to treat the block as longer
+than you asked for it to be, you are liable to destroy the data that
+‘malloc’ uses to keep track of its blocks, or you may destroy the
+contents of another block.  If you have already allocated a block and
+discover you want it to be bigger, use ‘realloc’ (*note Changing Block
+Size::).
+
+   需要注意的是在分配内存的末端内存可能被用于其他用途；例如可能已经被其他应用使用malloc分配。如果试图自己管理内存的生命周期，可以自己跟踪管理内存块，或者可以销毁其他内存块的内容。如果你已经分配了内存块但发现需要更多的内存，可以使用realloc（参考Changing Block Size）
 
 3.2.3.3 Freeing Memory Allocated with ‘malloc’
 
-3.2.2.3 释放malloc分配的内存
 ..............................................
+3.2.2.3 释放malloc分配的内存
 
-	When you no longer need a block that you got with `malloc', use the function `free' to make the block available to be allocated again.  The prototype for this function is in `stdlib.h'.  
+When you no longer need a block that you got with ‘malloc’, use the
+function ‘free’ to make the block available to be allocated again.  The
+prototype for this function is in ‘stdlib.h’.
 	当不在使用malloc分配的内存块，使用free函数来释放以便被再次分配使用。函数free的原型在文件’stdlib.h’中。
 
-	-- Function: void free (void *PTR)
-		The `free' function deallocates the block of memory pointed at by PTR.
-		函数free通过指向内存块的指针来释放内存。
+ -- Function: void free (void *PTR)
+
+     Preliminary: | MT-Safe | AS-Unsafe lock | AC-Unsafe lock fd mem |
+     *Note POSIX Safety Concepts::.
+
+     The ‘free’ function deallocates the block of memory pointed at by
+     PTR.
+     
+     函数free通过指向内存块的指针来释放内存。
 
 	-- Function: void cfree (void *PTR)
 		This function does the same thing as `free'.  It's provided for backward compatibility with SunOS; you should use `free' instead.
@@ -3851,38 +4589,97 @@ malloc::.
          }
      }
 
-	Occasionally, `free' can actually return memory to the operating system and make the process smaller.  Usually, all it can do is allow a later call to `malloc' to reuse the space.  In the meantime, the space remains in your program as part of a free-list used internally by `malloc'.
-	有些时候free真正返回给操作系统的内存并使进程更小一些；通常，所有应用能做的仅仅是允许一个晚一些的调用来分配内存重用空间。同时你的应用程序的空间中内部保留了部分malloc控制的空闲列表。
+   Occasionally, ‘free’ can actually return memory to the operating
+system and make the process smaller.  Usually, all it can do is allow a
+later call to ‘malloc’ to reuse the space.  In the meantime, the space
+remains in your program as part of a free-list used internally by
+‘malloc’.
+   
+   有些时候free真正返回给操作系统的内存并使进程更小一些；通常，所有应用能做的仅仅是允许一个晚一些的调用来分配内存重用空间。同时你的应用程序的空间中内部保留了部分malloc控制的空闲列表。
 
-	There is no point in freeing blocks at the end of a program, because all of the program's space is given back to the system when the process terminates.
-	在程序末端没有空闲内存块。在进程结束的时候所有程序的内存空间都将归还操作系统。
+   There is no point in freeing blocks at the end of a program, because
+all of the program’s space is given back to the system when the process
+terminates.
+
+   在程序末端没有空闲内存块。在进程结束的时候所有程序的内存空间都将归还操作系统。
 
 3.2.3.4 Changing the Size of a Block
 
 3.2.2.4 改变内存块大小
 ....................................
 
-	Often you do not know for certain how big a block you will ultimately need at the time you must begin to use the block.  For example, the block might be a buffer that you use to hold a line being read from a file; no matter how long you make the buffer initially, you may encounter a line that is longer.
-	通常申请内存的时刻你并不能准确的知道到底多大的内存块是合适的。例如，从一个文件中读取一行；无论最初你申请大多的内存作为缓存，你一定会碰到更长的一行。
+Often you do not know for certain how big a block you will ultimately
+need at the time you must begin to use the block.  For example, the
+block might be a buffer that you use to hold a line being read from a
+file; no matter how long you make the buffer initially, you may
+encounter a line that is longer.
 
-	You can make the block longer by calling `realloc'.  This function is declared in `stdlib.h'.
-	此时，你可以通过调用realloc来将内存块扩充。此函数在“stdlib.h”中声明。  
+通常申请内存的时刻你并不能准确的知道到底多大的内存块是合适的。例如，从一个文件中读取一行；无论最初你申请大多的内存作为缓存，你一定会碰到更长的一行。
 
-	-- Function: void * realloc (void *PTR, size_t NEWSIZE)
-		The `realloc' function changes the size of the block whose address is PTR to be NEWSIZE.
-		函数realloc改变以PTR为起始地址的内存块，大小变为NEWSIZE。
+   You can make the block longer by calling ‘realloc’ or ‘reallocarray’.
+These functions are declared in ‘stdlib.h’.
 
-		Since the space after the end of the block may be in use, `realloc' may find it necessary to copy the block to a new address where more free space is available.  The value of `realloc' is the new address of the block.  If the block needs to be moved, `realloc' copies the old contents.
-		由于内存块的尾部可能已经被使用，realloc必要的时候会将内存块内数据拷贝到新的可用地址空间内。realloc的返回值是新内存块的地址。如果内存块需要移动，realloc会将旧的内容拷贝。
+此时，你可以通过调用realloc来将内存块扩充。此函数在“stdlib.h”中声明。  
 
-		If you pass a null pointer for PTR, `realloc' behaves just like `malloc (NEWSIZE)'.  This can be convenient, but beware that older implementations (before ISO C) may not support this behavior, and will probably crash when `realloc' is passed a null pointer.
-		如果PTR参数为空，realloc的行为和malloc一样。这样比较方便，但要注意老的实现（在ISO C之前）并不一定支持。可能会导致出错。
-		
-		Like `malloc', `realloc' may return a null pointer if no memory space is available to make the block bigger.  When this happens, the original block is untouched; it has not been modified or relocated.
-		像malloc，如果空闲内存空间不足，realloc可能返回一个空指针。在此情况下，原有内存块不变。
+ -- Function: void * realloc (void *PTR, size_t NEWSIZE)
 
-		In most cases it makes no difference what happens to the original block when `realloc' fails, because the application program cannot continue when it is out of memory, and the only thing to do is to give a fatal error message.  Often it is convenient to write and use a subroutine, conventionally called `xrealloc', that takes care of the error message as `xmalloc' does for `malloc':
-		大多数情况下，realloc失败以后，原内容没什么变化，因为大多数应用不能继续运行，除了给出一个致命的错误信息。通常写一个子程序来处理这类错误，例如xrealloc，可以处理好大多数malloc的错误。
+     Preliminary: | MT-Safe | AS-Unsafe lock | AC-Unsafe lock fd mem |
+     *Note POSIX Safety Concepts::.
+
+     The ‘realloc’ function changes the size of the block whose address
+     is PTR to be NEWSIZE.
+     
+     函数realloc改变以PTR为起始地址的内存块，大小变为NEWSIZE。
+
+     Since the space after the end of the block may be in use, ‘realloc’
+     may find it necessary to copy the block to a new address where more
+     free space is available.  The value of ‘realloc’ is the new address
+     of the block.  If the block needs to be moved, ‘realloc’ copies the
+     old contents.
+     
+     由于内存块的尾部可能已经被使用，realloc必要的时候会将内存块内数据拷贝到新的可用地址空间内。realloc的返回值是新内存块的地址。如果内存块需要移动，realloc会将旧的内容拷贝。
+
+     If you pass a null pointer for PTR, ‘realloc’ behaves just like
+     ‘malloc (NEWSIZE)’.  This can be convenient, but beware that older
+     implementations (before ISO C) may not support this behavior, and
+     will probably crash when ‘realloc’ is passed a null pointer.
+     
+     如果PTR参数为空，realloc的行为和malloc一样。这样比较方便，但要注意老的实现（在ISO C之前）并不一定支持。可能会导致出错。
+
+ -- Function: void * reallocarray (void *PTR, size_t NMEMB, size_t SIZE)
+
+     Preliminary: | MT-Safe | AS-Unsafe lock | AC-Unsafe lock fd mem |
+     *Note POSIX Safety Concepts::.
+
+     The ‘reallocarray’ function changes the size of the block whose
+     address is PTR to be long enough to contain a vector of NMEMB
+     elements, each of size SIZE.  It is equivalent to ‘realloc (PTR,
+     NMEMB * SIZE)’, except that ‘reallocarray’ fails safely if the
+     multiplication overflows, by setting ‘errno’ to ‘ENOMEM’, returning
+     a null pointer, and leaving the original block unchanged.
+
+     ‘reallocarray’ should be used instead of ‘realloc’ when the new
+     size of the allocated block is the result of a multiplication that
+     might overflow.
+
+     *Portability Note:* This function is not part of any standard.  It
+     was first introduced in OpenBSD 5.6.
+
+   Like ‘malloc’, ‘realloc’ and ‘reallocarray’ may return a null pointer
+if no memory space is available to make the block bigger.  When this
+happens, the original block is untouched; it has not been modified or
+relocated.
+
+   像malloc，如果空闲内存空间不足，realloc可能返回一个空指针。在此情况下，原有内存块不变。
+
+   In most cases it makes no difference what happens to the original
+block when ‘realloc’ fails, because the application program cannot
+continue when it is out of memory, and the only thing to do is to give a
+fatal error message.  Often it is convenient to write and use a
+subroutine, conventionally called ‘xrealloc’, that takes care of the
+error message as ‘xmalloc’ does for ‘malloc’:
+
+   大多数情况下，realloc失败以后，原内容没什么变化，因为大多数应用不能继续运行，除了给出一个致命的错误信息。通常写一个子程序来处理这类错误，例如xrealloc，可以处理好大多数malloc的错误。
 
      void *
      xrealloc (void *ptr, size_t size)
@@ -3893,24 +4690,42 @@ malloc::.
        return value;
      }
 
-	You can also use `realloc' to make a block smaller.  The reason you would do this is to avoid tying up a lot of memory space when only a little is needed.  In several allocation implementations, making a block smaller sometimes necessitates copying it, so it can fail if no other space is available.
-	你也可以用realloc来把内存块变小。这样做的原因可能是节省内存。在一些分配内存的实现中，让内存块变小要比拷贝更加必要，这样可以使其他内存空间更加有效。
+   You can also use ‘realloc’ or ‘reallocarray’ to make a block smaller.
+The reason you would do this is to avoid tying up a lot of memory space
+when only a little is needed.  In several allocation implementations,
+making a block smaller sometimes necessitates copying it, so it can fail
+if no other space is available.
 
-	If the new size you specify is the same as the old size, `realloc' is guaranteed to change nothing and return the same address that you gave.
-	如果指定的新的大小和之前的大小相同，realloc保证没有变更并返回和之前相同的地址。
+你也可以用realloc来把内存块变小。这样做的原因可能是节省内存。在一些分配内存的实现中，让内存块变小要比拷贝更加必要，这样可以使其他内存空间更加有效。
+
+   If the new size you specify is the same as the old size, ‘realloc’
+and ‘reallocarray’ are guaranteed to change nothing and return the same
+address that you gave.
+
+如果指定的新的大小和之前的大小相同，realloc保证没有变更并返回和之前相同的地址。
 
 3.2.3.5 Allocating Cleared Space
 ................................
 
-	The function `calloc' allocates memory and clears it to zero.  It is declared in `stdlib.h'.  
-	函数calloc分配内存并清零。在函数stdlib.h中声明。
+The function ‘calloc’ allocates memory and clears it to zero.  It is
+declared in ‘stdlib.h’.
 
-	-- Function: void * calloc (size_t COUNT, size_t ELTSIZE)
-		This function allocates a block long enough to contain a vector of COUNT elements, each of size ELTSIZE.  Its contents are cleared to zero before `calloc' returns.
-		此函数分配足够容纳COUNT个数的内存块。内容在calloc返回前被清为零。
+函数calloc分配内存并清零。在函数stdlib.h中声明。
 
-		You could define `calloc' as follows:
-		你可以如下定义calloc：
+ -- Function: void * calloc (size_t COUNT, size_t ELTSIZE)
+
+     Preliminary: | MT-Safe | AS-Unsafe lock | AC-Unsafe lock fd mem |
+     *Note POSIX Safety Concepts::.
+
+     This function allocates a block long enough to contain a vector of
+     COUNT elements, each of size ELTSIZE.  Its contents are cleared to
+     zero before ‘calloc’ returns.
+     
+     此函数分配足够容纳COUNT个数的内存块。内容在calloc返回前被清为零。
+
+   You could define ‘calloc’ as follows:
+   
+   你可以如下定义calloc：
 
      void *
      calloc (size_t count, size_t eltsize)
@@ -3922,47 +4737,125 @@ malloc::.
        return value;
      }
 
-		But in general, it is not guaranteed that `calloc' calls `malloc' internally.  Therefore, if an application provides its own `malloc'/`realloc'/`free' outside the C library, it should always define `calloc', too.
-		但通常，calloc并不保证内部调用malloc。因此如果应用在C库之外提供自己的“malloc/realloc/free”，需要总是定义calloc。
+   But in general, it is not guaranteed that ‘calloc’ calls ‘malloc’
+internally.  Therefore, if an application provides its own
+‘malloc’/‘realloc’/‘free’ outside the C library, it should always define
+‘calloc’, too.
+   
+   但通常，calloc并不保证内部调用malloc。因此如果应用在C库之外提供自己的“malloc/realloc/free”，需要总是定义calloc。
 
-3.2.2.6 Efficiency Considerations for `malloc'
 
-3.2.2.6 malloc的效率考量
-..............................................
+3.2.3.6 Allocating Aligned Memory Blocks
 
-	As opposed to other versions, the `malloc' in the GNU C Library does not round up block sizes to powers of two, neither for large nor for small sizes.  Neighboring chunks can be coalesced on a `free' no matter what their size is.  This makes the implementation suitable for all kinds of allocation patterns without generally incurring high memory waste through fragmentation.
-	相比其他版本，GNU C的malloc并不严格按照2的乘方对齐内存块，不扩大或者缩小。相邻内存可以被free重新规整。这样的实现适合所有分配模型，并通常避免碎片导致的高内存浪费。
-
-	Very large blocks (much larger than a page) are allocated with `mmap' (anonymous or via `/dev/zero') by this implementation.  This has the great advantage that these chunks are returned to the system immediately when they are freed.  Therefore, it cannot happen that a large chunk becomes "locked" in between smaller ones and even after calling `free' wastes memory.  The size threshold for `mmap' to be used can be adjusted with `mallopt'.  The use of `mmap' can also be disabled completely.
-	GNU C中，非常大的内存块（比一个页大很多）使用mmap（匿名或者通过/dev/zero）。这种实现在这些内存被释放归还系统的时候优势非常明显。因此，在释放无效内存和小内存块之前的大内存不可能被“锁定”。mmap的大小门限可以使用mallopt来调整。使用mmap也可以完全的关闭。
-
-3.2.2.7 Allocating Aligned Memory Blocks
-3.2.2.7 分配对齐的内存块
 ........................................
+3.2.2.6 分配对齐的内存块
 
-	The address of a block returned by `malloc' or `realloc' in the GNU system is always a multiple of eight (or sixteen on 64-bit systems). If you need a block whose address is a multiple of a higher power of two than that, use `memalign', `posix_memalign', or `valloc'. `memalign' is declared in `malloc.h' and `posix_memalign' is declared in `stdlib.h'.
-	GNU系统中的malloc或realloc返回的内存块地址总是8的倍数（64位机是16的倍数）。如果你需要一个地址是一个多个字节倍数对齐的地址，请使用memalign, posix memalign或者valloc。memalign在malloc.h中声明；posix memalign在stdlib.h中声明。
+The address of a block returned by ‘malloc’ or ‘realloc’ in GNU systems
+is always a multiple of eight (or sixteen on 64-bit systems).  If you
+need a block whose address is a multiple of a higher power of two than
+that, use ‘aligned_alloc’ or ‘posix_memalign’.  ‘aligned_alloc’ and
+‘posix_memalign’ are declared in ‘stdlib.h’.
+
+GNU系统中的malloc或realloc返回的内存块地址总是8的倍数（64位机是16的倍数）。如果你需要一个地址是一个多个字节倍数对齐的地址，请使用memalign, posix memalign或者valloc。memalign在malloc.h中声明；posix memalign在stdlib.h中声明。
+
 
 	With the GNU library, you can use `free' to free the blocks that `memalign', `posix_memalign', and `valloc' return.  That does not work in BSD, however--BSD does not provide any way to free such blocks.
 	对于GNU库，可以使用free来释放memalign,posix memalign及valloc返回的内存块。在BSD系统中，不能提供这种机制。
 
-	-- Function: void * memalign (size_t BOUNDARY, size_t SIZE)
-		The `memalign' function allocates a block of SIZE bytes whose address is a multiple of BOUNDARY.  The BOUNDARY must be a power of two!  The function `memalign' works by allocating a somewhat larger block, and then returning an address within the block that is on the specified boundary.
-		函数memalign分配SIZE大小的内存，地址以BOUNDARY的倍数对齐。BOUNDARY必须是2的整数倍！函数memalign可以分配相对较大的内存，同时返回对应地址块的地址边界。
+ -- Function: void * aligned_alloc (size_t ALIGNMENT, size_t SIZE)
 
-	-- Function: int posix_memalign (void **MEMPTR, size_t ALIGNMENT, size_t SIZE)
-		The `posix_memalign' function is similar to the `memalign' function in that it returns a buffer of SIZE bytes aligned to a multiple of ALIGNMENT.  But it adds one requirement to the parameter ALIGNMENT: the value must be a power of two multiple of `sizeof (void *)'.
-		函数posix memalign和memalign相似，其返回SIZE大小的并以ALIGNMENT的倍数对齐。但它对参数ALIGNMENT有一个要求：其值必须是sizeof(void*)的两倍的倍数。
+     Preliminary: | MT-Safe | AS-Unsafe lock | AC-Unsafe lock fd mem |
+     *Note POSIX Safety Concepts::.
 
-		If the function succeeds in allocation memory a pointer to the allocated memory is returned in `*MEMPTR' and the return value is zero.  Otherwise the function returns an error value indicating the problem.
-		如果此函数超越了分配内存的指针（以*MEMPTR返回），并且返回值为0。否则函数返回错误。
+     The ‘aligned_alloc’ function allocates a block of SIZE bytes whose
+     address is a multiple of ALIGNMENT.  The ALIGNMENT must be a power
+     of two and SIZE must be a multiple of ALIGNMENT.
 
-		This function was introduced in POSIX 1003.1d.
-		此函数在POSIX 1003.1d中详解。
+     The ‘aligned_alloc’ function returns a null pointer on error and
+     sets ‘errno’ to one of the following values:
 
-	-- Function: void * valloc (size_t SIZE)
-		Using `valloc' is like using `memalign' and passing the page size as the value of the second argument.  It is implemented like this:
-		valloc和memalign用法类似。实现类似如下：
+     ‘ENOMEM’
+          There was insufficient memory available to satisfy the
+          request.
+
+     ‘EINVAL’
+          ALIGNMENT is not a power of two.
+
+          This function was introduced in ISO C11 and hence may have
+          better portability to modern non-POSIX systems than
+          ‘posix_memalign’.
+
+ -- Function: void * memalign (size_t BOUNDARY, size_t SIZE)
+
+     Preliminary: | MT-Safe | AS-Unsafe lock | AC-Unsafe lock fd mem |
+     *Note POSIX Safety Concepts::.
+
+     The ‘memalign’ function allocates a block of SIZE bytes whose
+     address is a multiple of BOUNDARY.  The BOUNDARY must be a power of
+     two!  The function ‘memalign’ works by allocating a somewhat larger
+     block, and then returning an address within the block that is on
+     the specified boundary.
+
+     The ‘memalign’ function returns a null pointer on error and sets
+     ‘errno’ to one of the following values:
+     
+     函数memalign分配SIZE大小的内存，地址以BOUNDARY的倍数对齐。BOUNDARY必须是2的整数倍！函数memalign可以分配相对较大的内存，同时返回对应地址块的地址边界。
+
+     ‘ENOMEM’
+          There was insufficient memory available to satisfy the
+          request.
+
+     ‘EINVAL’
+          BOUNDARY is not a power of two.
+
+     The ‘memalign’ function is obsolete and ‘aligned_alloc’ or
+     ‘posix_memalign’ should be used instead.
+     
+     memalign 函数过时，用aligned_alloc或者posix_memalign替代。
+
+ -- Function: int posix_memalign (void **MEMPTR, size_t ALIGNMENT,
+          size_t SIZE)
+
+     Preliminary: | MT-Safe | AS-Unsafe lock | AC-Unsafe lock fd mem |
+     *Note POSIX Safety Concepts::.
+
+     The ‘posix_memalign’ function is similar to the ‘memalign’ function
+     in that it returns a buffer of SIZE bytes aligned to a multiple of
+     ALIGNMENT.  But it adds one requirement to the parameter ALIGNMENT:
+     the value must be a power of two multiple of ‘sizeof (void *)’.
+     
+     函数posix memalign和memalign相似，其返回SIZE大小的并以ALIGNMENT的倍数对齐。但它对参数ALIGNMENT有一个要求：其值必须是sizeof(void*)的两倍的倍数。
+
+
+     If the function succeeds in allocation memory a pointer to the
+     allocated memory is returned in ‘*MEMPTR’ and the return value is
+     zero.  Otherwise the function returns an error value indicating the
+     problem.  The possible error values returned are:
+     
+     如果此函数超越了分配内存的指针（以*MEMPTR返回），并且返回值为0。否则函数返回错误。
+
+     ‘ENOMEM’
+          There was insufficient memory available to satisfy the
+          request.
+
+     ‘EINVAL’
+          ALIGNMENT is not a power of two multiple of ‘sizeof (void *)’.
+
+     This function was introduced in POSIX 1003.1d.  Although this
+     function is superseded by ‘aligned_alloc’, it is more portable to
+     older POSIX systems that do not support ISO C11.
+     
+     此函数在POSIX 1003.1d中详解。
+
+ -- Function: void * valloc (size_t SIZE)
+
+     Preliminary: | MT-Unsafe init | AS-Unsafe init lock | AC-Unsafe
+     init lock fd mem | *Note POSIX Safety Concepts::.
+
+     Using ‘valloc’ is like using ‘memalign’ and passing the page size
+     as the value of the first argument.  It is implemented like this:
+		
+     valloc和memalign用法类似。实现类似如下：
 
           void *
           valloc (size_t size)
@@ -3970,56 +4863,193 @@ malloc::.
             return memalign (getpagesize (), size);
           }
 
-	*note Query Memory Parameters:: for more information about the memory subsystem.
-	*注意查询Memory Parameters来了解内存子系统的更多系统。 
+     *note Query Memory Parameters:: for more information about the
+     memory subsystem.
+     
+     *注意查询Memory Parameters来了解内存子系统的更多系统。 
 
-3.2.2.8 Malloc Tunable Parameters
+     The ‘valloc’ function is obsolete and ‘aligned_alloc’ or
+     ‘posix_memalign’ should be used instead.
+
+3.2.3.7 Malloc Tunable Parameters
+
+.................................
 3.2.2.8 分配内存的参数
+
+You can adjust some parameters for dynamic memory allocation with the
+‘mallopt’ function.  This function is the general SVID/XPG interface,
+defined in ‘malloc.h’.
+
+mallopt函数提供在动态分配中调整参数的功能。此函数是SVID/XPG接口，在malloc.h中声明。
+
+ -- Function: int mallopt (int PARAM, int VALUE)
+     Preliminary: | MT-Unsafe init const:mallopt | AS-Unsafe init lock |
+     AC-Unsafe init lock | *Note POSIX Safety Concepts::.
+
+     When calling ‘mallopt’, the PARAM argument specifies the parameter
+     to be set, and VALUE the new value to be set.  Possible choices for
+     PARAM, as defined in ‘malloc.h’, are:
+     
+     当调用mallopt，PARAM指定要修改的参数，VALUE是新值。PARAM可能的参数有：
+
+     ‘M_MMAP_MAX’
+          The maximum number of chunks to allocate with ‘mmap’.  Setting
+          this to zero disables all use of ‘mmap’.
+
+          The default value of this parameter is ‘65536’.
+
+          This parameter can also be set for the process at startup by
+          setting the environment variable ‘MALLOC_MMAP_MAX_’ to the
+          desired value.
+
+
+     ‘M_MMAP_THRESHOLD’
+          All chunks larger than this value are allocated outside the
+          normal heap, using the ‘mmap’ system call.  This way it is
+          guaranteed that the memory for these chunks can be returned to
+          the system on ‘free’.  Note that requests smaller than this
+          threshold might still be allocated via ‘mmap’.
+
+          If this parameter is not set, the default value is set as 128
+          KiB and the threshold is adjusted dynamically to suit the
+          allocation patterns of the program.  If the parameter is set,
+          the dynamic adjustment is disabled and the value is set
+          statically to the input value.
+
+          This parameter can also be set for the process at startup by
+          setting the environment variable ‘MALLOC_MMAP_THRESHOLD_’ to
+          the desired value.
+
+	  这是顶层可靠的可分配的最小的内存块，此参数将唤醒sbrk来给系统回收内存。
+
+     ‘M_PERTURB’
+          If non-zero, memory blocks are filled with values depending on
+          some low order bits of this parameter when they are allocated
+          (except when allocated by ‘calloc’) and freed.  This can be
+          used to debug the use of uninitialized or freed heap memory.
+          Note that this option does not guarantee that the freed block
+          will have any specific values.  It only guarantees that the
+          content the block had before it was freed will be overwritten.
+
+          The default value of this parameter is ‘0’.
+
+          This parameter can also be set for the process at startup by
+          setting the environment variable ‘MALLOC_MMAP_PERTURB_’ to the
+          desired value.
+
+
+     ‘M_TOP_PAD’
+          This parameter determines the amount of extra memory to obtain
+          from the system when an arena needs to be extended.  It also
+          specifies the number of bytes to retain when shrinking an
+          arena.  This provides the necessary hysteresis in heap size
+          such that excessive amounts of system calls can be avoided.
+
+          The default value of this parameter is ‘0’.
+
+          This parameter can also be set for the process at startup by
+          setting the environment variable ‘MALLOC_TOP_PAD_’ to the
+          desired value.
+
+	  此参数决定当sbrk调用后，系统可以释放的内存量。此参数还指定了当sbrk调用后堆栈缩小的字节数。此参数还提供必要的堆栈底限，这样可以避免过多的系统调用。
+
+
+     ‘M_TRIM_THRESHOLD’
+          This is the minimum size (in bytes) of the top-most,
+          releasable chunk that will trigger a system call in order to
+          return memory to the system.
+
+          If this parameter is not set, the default value is set as 128
+          KiB and the threshold is adjusted dynamically to suit the
+          allocation patterns of the program.  If the parameter is set,
+          the dynamic adjustment is disabled and the value is set
+          statically to the provided input.
+
+          This parameter can also be set for the process at startup by
+          setting the environment variable ‘MALLOC_TRIM_THRESHOLD_’ to
+          the desired value.
+
+	  所有大于此值的内存将被mmap系统调用分配，并在normal堆栈之外分配。这种方式保证内存可被系统使用free释放。注意小于此门限的内存块也可以被mmap分配。
+
+     ‘M_ARENA_TEST’
+          This parameter specifies the number of arenas that can be
+          created before the test on the limit to the number of arenas
+          is conducted.  The value is ignored if ‘M_ARENA_MAX’ is set.
+
+          The default value of this parameter is 2 on 32-bit systems and
+          8 on 64-bit systems.
+
+          This parameter can also be set for the process at startup by
+          setting the environment variable ‘MALLOC_ARENA_TEST’ to the
+          desired value.
+
+
+     ‘M_ARENA_MAX’
+          This parameter sets the number of arenas to use regardless of
+          the number of cores in the system.
+
+          The default value of this tunable is ‘0’, meaning that the
+          limit on the number of arenas is determined by the number of
+          CPU cores online.  For 32-bit systems the limit is twice the
+          number of cores online and on 64-bit systems, it is eight
+          times the number of cores online.  Note that the default value
+          is not derived from the default value of M_ARENA_TEST and is
+          computed independently.
+
+          This parameter can also be set for the process at startup by
+          setting the environment variable ‘MALLOC_ARENA_MAX’ to the
+          desired value.
+
+	  mmap可以申请的最大数量的内存。将此值改为0将关闭mmap功能。
+
+
+3.2.3.8 Heap Consistency Checking
 .................................
-
-	You can adjust some parameters for dynamic memory allocation with the `mallopt' function.  This function is the general SVID/XPG interface, defined in `malloc.h'.  
-	mallopt函数提供在动态分配中调整参数的功能。此函数是SVID/XPG接口，在malloc.h中声明。
-
-	-- Function: int mallopt (int PARAM, int VALUE)
-		When calling `mallopt', the PARAM argument specifies the parameter to be set, and VALUE the new value to be set.  Possible choices for PARAM, as defined in `malloc.h', are:
-		当调用mallopt，PARAM指定要修改的参数，VALUE是新值。PARAM可能的参数有：
-
-	`M_TRIM_THRESHOLD'
-		This is the minimum size (in bytes) of the top-most,releasable chunk that will cause `sbrk' to be called with a negative argument in order to return memory to the system.
-		这是顶层可靠的可分配的最小的内存块，此参数将唤醒sbrk来给系统回收内存。
-	
-		
-	`M_TOP_PAD'
-		This parameter determines the amount of extra memory to obtain from the system when a call to `sbrk' is required.  It also specifies the number of bytes to retain when shrinking the heap by calling `sbrk' with a negative argument.  This provides the necessary hysteresis in heap size such that excessive amounts of system calls can be avoided.
-		此参数决定当sbrk调用后，系统可以释放的内存量。此参数还指定了当sbrk调用后堆栈缩小的字节数。此参数还提供必要的堆栈底限，这样可以避免过多的系统调用。
-
-	`M_MMAP_THRESHOLD'
-		All chunks larger than this value are allocated outside the normal heap, using the `mmap' system call.  This way it is guaranteed that the memory for these chunks can be returned to the system on `free'.  Note that requests smaller than this threshold might still be allocated via `mmap'.
-		所有大于此值的内存将被mmap系统调用分配，并在normal堆栈之外分配。这种方式保证内存可被系统使用free释放。注意小于此门限的内存块也可以被mmap分配。
-
-	`M_MMAP_MAX'
-		The maximum number of chunks to allocate with `mmap'. Setting this to zero disables all use of `mmap'.
-		mmap可以申请的最大数量的内存。将此值改为0将关闭mmap功能。
-
-3.2.2.9 Heap Consistency Checking
 3.2.2.9 堆栈完整性检查
-.................................
 
-	You can ask `malloc' to check the consistency of dynamic memory by using the `mcheck' function.  This function is a GNU extension, declared in `mcheck.h'.  
-	mcheck函数提供了对malloc申请的动态内存的一致性检查功能。这是一个GNU扩展，在mcheck.h中声明。
+You can ask ‘malloc’ to check the consistency of dynamic memory by using
+the ‘mcheck’ function.  This function is a GNU extension, declared in
+‘mcheck.h’.
+mcheck函数提供了对malloc申请的动态内存的一致性检查功能。这是一个GNU扩展，在mcheck.h中声明。
 
-	-- Function: int mcheck (void (*ABORTFN) (enum mcheck_status STATUS))
-		Calling `mcheck' tells `malloc' to perform occasional consistency checks.  These will catch things such as writing past the end of a block that was allocated with `malloc'.
-		mcheck告诉malloc来不定期的执行一致性检查。这将捕获类似写内存越界这样的问题。
+ -- Function: int mcheck (void (*ABORTFN) (enum mcheck_status STATUS))
 
-		The ABORTFN argument is the function to call when an inconsistency is found.  If you supply a null pointer, then `mcheck' uses a default function which prints a message and calls `abort' (*note Aborting a Program::).  The function you supply is called with one argument, which says what sort of inconsistency was detected; its type is described below.
-		ABORTFN参数是一个当不一致性发现后执行的函数。如果提供了一个空指针，mcheck函数将使用默认处理函数打印一个消息并执行abort（参见Aborting a Program）。你提供的函数将拥有一个参数，标识那类不一致性问题被发现。类型将在下面描述。
+     Preliminary: | MT-Unsafe race:mcheck const:malloc_hooks | AS-Unsafe
+     corrupt | AC-Unsafe corrupt | *Note POSIX Safety Concepts::.
 
-		It is too late to begin allocation checking once you have allocated anything with `malloc'.  So `mcheck' does nothing in that case. The function returns `-1' if you call it too late, and `0' otherwise (when it is successful).
-		内存一旦用malloc分配，再做检查已经晚了。这样mcheck什么都不会做，函数将返回-1表明调用晚了，同时返回0表示执行成功。
+     Calling ‘mcheck’ tells ‘malloc’ to perform occasional consistency
+     checks.  These will catch things such as writing past the end of a
+     block that was allocated with ‘malloc’.
+     
+     mcheck告诉malloc来不定期的执行一致性检查。这将捕获类似写内存越界这样的问题。
 
-		The easiest way to arrange to call `mcheck' early enough is to use the option `-lmcheck' when you link your program; then you don't need to modify your program source at all.  Alternatively you might use a debugger to insert a call to `mcheck' whenever the program is started, for example these gdb commands will automatically call `mcheck' whenever the program starts:
-		最早安排调用mcheck的方法是在链接程序的时候使用-lmcheck参数；这样完全不需要重新编译程序源码。你也可以使用调试器来在程序执行时临时插入mcheck，例如gdb可以在程序执行的时候自动插入mcheck：
+     The ABORTFN argument is the function to call when an inconsistency
+     is found.  If you supply a null pointer, then ‘mcheck’ uses a
+     default function which prints a message and calls ‘abort’ (*note
+     Aborting a Program::).  The function you supply is called with one
+     argument, which says what sort of inconsistency was detected; its
+     type is described below.
+     
+     ABORTFN参数是一个当不一致性发现后执行的函数。如果提供了一个空指针，mcheck函数将使用默认处理函数打印一个消息并执行abort（参见Aborting a Program）。你提供的函数将拥有一个参数，标识那类不一致性问题被发现。类型将在下面描述。
+
+
+     It is too late to begin allocation checking once you have allocated
+     anything with ‘malloc’.  So ‘mcheck’ does nothing in that case.
+     The function returns ‘-1’ if you call it too late, and ‘0’
+     otherwise (when it is successful).
+     
+     内存一旦用malloc分配，再做检查已经晚了。这样mcheck什么都不会做，函数将返回-1表明调用晚了，同时返回0表示执行成功。
+
+
+     The easiest way to arrange to call ‘mcheck’ early enough is to use
+     the option ‘-lmcheck’ when you link your program; then you don’t
+     need to modify your program source at all.  Alternatively you might
+     use a debugger to insert a call to ‘mcheck’ whenever the program is
+     started, for example these gdb commands will automatically call
+     ‘mcheck’ whenever the program starts:
+
+     最早安排调用mcheck的方法是在链接程序的时候使用-lmcheck参数；这样完全不需要重新编译程序源码。你也可以使用调试器来在程序执行时临时插入mcheck，例如gdb可以在程序执行的时候自动插入mcheck：
+
 
           (gdb) break main
           Breakpoint 1, main (argc=2, argv=0xbffff964) at whatever.c:10
@@ -4031,97 +5061,205 @@ malloc::.
           >end
           (gdb) ...
 
-		This will however only work if no initialization function of any object involved calls any of the `malloc' functions since `mcheck' must be called before the first such function.
-		然而这仅仅在没有任何调用malloc函数之前执行才有效，因为mcheck必须在第一次执行mallock之前调用。
+     This will however only work if no initialization function of any
+     object involved calls any of the ‘malloc’ functions since ‘mcheck’
+     must be called before the first such function.
+     
+     然而这仅仅在没有任何调用malloc函数之前执行才有效，因为mcheck必须在第一次执行mallock之前调用。
 
-	-- Function: enum mcheck_status mprobe (void *POINTER)
-		The `mprobe' function lets you explicitly check for inconsistencies in a particular allocated block.  You must have already called `mcheck' at the beginning of the program, to do its occasional checks; calling `mprobe' requests an additional consistency check to be done at the time of the call.
-		函数mprobe提供显示的对执行内存块检查非一致性。在程序一开始就必须执行mcheck。mprobe在此之外提供额外的一致性检查。
+ -- Function: enum mcheck_status mprobe (void *POINTER)
+     Preliminary: | MT-Unsafe race:mcheck const:malloc_hooks | AS-Unsafe
+     corrupt | AC-Unsafe corrupt | *Note POSIX Safety Concepts::.
 
-		The argument POINTER must be a pointer returned by `malloc' or `realloc'.  `mprobe' returns a value that says what inconsistency, if any, was found.  The values are described below.
-		参数POINTER必须是malloc或者realloc分配的内存。mprobe函数返回什么样的非一致性。值在如下描述：
+     The ‘mprobe’ function lets you explicitly check for inconsistencies
+     in a particular allocated block.  You must have already called
+     ‘mcheck’ at the beginning of the program, to do its occasional
+     checks; calling ‘mprobe’ requests an additional consistency check
+     to be done at the time of the call.
+     
+     函数mprobe提供显示的对执行内存块检查非一致性。在程序一开始就必须执行mcheck。mprobe在此之外提供额外的一致性检查。
 
-	-- Data Type: enum mcheck_status
-		This enumerated type describes what kind of inconsistency was detected in an allocated block, if any.  Here are the possible values:
-		此枚举类型描述什么样的非一致性被检测到。
+     The argument POINTER must be a pointer returned by ‘malloc’ or
+     ‘realloc’.  ‘mprobe’ returns a value that says what inconsistency,
+     if any, was found.  The values are described below.
 
-		`MCHECK_DISABLED'
-			`mcheck' was not called before the first allocation.  No consistency checking can be done.
-			mcheck没有在第一次分配前调用。一致性检查没有完成。
+     参数POINTER必须是malloc或者realloc分配的内存。mprobe函数返回什么样的非一致性。值在如下描述：
+
+ -- Data Type: enum mcheck_status
+     This enumerated type describes what kind of inconsistency was
+     detected in an allocated block, if any.  Here are the possible
+     values:
+     
+     此枚举类型描述什么样的非一致性被检测到。
+
+     ‘MCHECK_DISABLED’
+          ‘mcheck’ was not called before the first allocation.  No
+          consistency checking can be done.
+	  
+	  mcheck没有在第一次分配前调用。一致性检查没有完成。
 	
-		`MCHECK_OK'
-			No inconsistency detected.
-			没有检测到非一致性。
+     ‘MCHECK_OK’
+          No inconsistency detected.
+	  
+	  没有检测到非一致性。
 
-		`MCHECK_HEAD'
-			The data immediately before the block was modified.  This commonly happens when an array index or pointer is decremented too far.
-			内存块的临近头部被修改。这通常是数组下标或者指针递减越界。
+     ‘MCHECK_HEAD’
+          The data immediately before the block was modified.  This
+          commonly happens when an array index or pointer is decremented
+          too far.
+	  
+	  内存块的临近头部被修改。这通常是数组下标或者指针递减越界。
 
-		`MCHECK_TAIL'
-			The data immediately after the block was modified.  This commonly happens when an array index or pointer is incremented too far.
-			内存块的尾部被修改。这通常是数据下标或者指针递增越界。
+     ‘MCHECK_TAIL’
+          The data immediately after the block was modified.  This
+          commonly happens when an array index or pointer is incremented
+          too far.
+	  
+	  内存块的尾部被修改。这通常是数据下标或者指针递增越界。
 
-		`MCHECK_FREE'
-			The block was already freed.
-			内存已经被释放过。
+     ‘MCHECK_FREE’
+          The block was already freed.
+	  
+	  内存已经被释放过。
 
-	Another possibility to check for and guard against bugs in the use of `malloc', `realloc' and `free' is to set the environment variable `MALLOC_CHECK_'.  When `MALLOC_CHECK_' is set, a special (less efficient) implementation is used which is designed to be tolerant against simple errors, such as double calls of `free' with the same argument, or overruns of a single byte (off-by-one bugs).  Not all such errors can be protected against, however, and memory leaks can result. If `MALLOC_CHECK_' is set to `0', any detected heap corruption is silently ignored; if set to `1', a diagnostic is printed on `stderr'; if set to `2', `abort' is called immediately.  This can be useful because otherwise a crash may happen much later, and the true cause for the problem is then very hard to track down.
-	另外的使用malloc、realloc和free来检查和保护内存的方法是设定环境变量MALLOC_CHECK_。当此变量设定，特定设计的实现（牺牲效率）可以容忍简单错误，例如对于两次对一个变量使用free释放，或者滥用单字节（边界错误）。并不是所有的错误都能够保护，例如，内存泄漏就无法避免。如果MALLOC_CHECK_被设为1，在stderr会打印出诊断信息；如果设定为2，abort会立即生效。这通常非常有效，不然程序崩溃会大大延迟，并且出错的原因也非常难以跟踪。
+   Another possibility to check for and guard against bugs in the use of
+‘malloc’, ‘realloc’ and ‘free’ is to set the environment variable
+‘MALLOC_CHECK_’.  When ‘MALLOC_CHECK_’ is set, a special (less
+efficient) implementation is used which is designed to be tolerant
+against simple errors, such as double calls of ‘free’ with the same
+argument, or overruns of a single byte (off-by-one bugs).  Not all such
+errors can be protected against, however, and memory leaks can result.
+If ‘MALLOC_CHECK_’ is set to ‘0’, any detected heap corruption is
+silently ignored; if set to ‘1’, a diagnostic is printed on ‘stderr’; if
+set to ‘2’, ‘abort’ is called immediately.  This can be useful because
+otherwise a crash may happen much later, and the true cause for the
+problem is then very hard to track down.
 
-	There is one problem with `MALLOC_CHECK_': in SUID or SGID binaries it could possibly be exploited since diverging from the normal programs behavior it now writes something to the standard error descriptor. Therefore the use of `MALLOC_CHECK_' is disabled by default for SUID and SGID binaries.  It can be enabled again by the system administrator by adding a file `/etc/suid-debug' (the content is not important it could be empty).
-	MALLOC_CHECK_还是有一个问题。在SUID和SGID二进制程序中，这可能和正常程序的行为不一致，现在它向标准错误描述符写了内容。因此，对于SUID和SGID的二进制程序，MALLOC_CHECK_默认是关闭的。通过增加/etc/suid-debug（文件内容不重要）可以打开此功能。
+   另外的使用malloc、realloc和free来检查和保护内存的方法是设定环境变量MALLOC_CHECK_。当此变量设定，特定设计的实现（牺牲效率）可以容忍简单错误，例如对于两次对一个变量使用free释放，或者滥用单字节（边界错误）。并不是所有的错误都能够保护，例如，内存泄漏就无法避免。如果MALLOC_CHECK_被设为1，在stderr会打印出诊断信息；如果设定为2，abort会立即生效。这通常非常有效，不然程序崩溃会大大延迟，并且出错的原因也非常难以跟踪。
 
-	So, what's the difference between using `MALLOC_CHECK_' and linking with `-lmcheck'?  `MALLOC_CHECK_' is orthogonal with respect to `-lmcheck'.  `-lmcheck' has been added for backward compatibility. Both `MALLOC_CHECK_' and `-lmcheck' should uncover the same bugs - but using `MALLOC_CHECK_' you don't need to recompile your application.
+
+   There is one problem with ‘MALLOC_CHECK_’: in SUID or SGID binaries
+it could possibly be exploited since diverging from the normal programs
+behavior it now writes something to the standard error descriptor.
+Therefore the use of ‘MALLOC_CHECK_’ is disabled by default for SUID and
+SGID binaries.  It can be enabled again by the system administrator by
+adding a file ‘/etc/suid-debug’ (the content is not important it could
+be empty).
+
+MALLOC_CHECK_还是有一个问题。在SUID和SGID二进制程序中，这可能和正常程序的行为不一致，现在它向标准错误描述符写了内容。因此，对于SUID和SGID的二进制程序，MALLOC_CHECK_默认是关闭的。通过增加/etc/suid-debug（文件内容不重要）可以打开此功能。
+
+   So, what’s the difference between using ‘MALLOC_CHECK_’ and linking
+with ‘-lmcheck’?  ‘MALLOC_CHECK_’ is orthogonal with respect to
+‘-lmcheck’.  ‘-lmcheck’ has been added for backward compatibility.  Both
+‘MALLOC_CHECK_’ and ‘-lmcheck’ should uncover the same bugs - but using
+‘MALLOC_CHECK_’ you don’t need to recompile your application.
+
 	那么，MALLOC_CHECK_和用-lmcheck链接有什么不同呢？MALLOC_CHECK_和-lmcheck完全没有关系。-lmcheck支持向后兼容。MALLOC_CHECK_和-lmcheck都可以发现相同的bug，但使用MALLOC_CHECK_不必重新编译程序。
 
-3.2.2.10 Memory Allocation Hooks
-3.2.2.10 内存分配钩子
-................................
 
-	The GNU C library lets you modify the behavior of `malloc', `realloc', and `free' by specifying appropriate hook functions.  You can use these hooks to help you debug programs that use dynamic memory allocation, for example. 
-	GNU C库允许通过制定特定的回调函数来改变malloc,realloc和free的行为。你可以使用这些方法来定位问题。
+3.2.3.9 Memory Allocation Hooks
+...............................
+3.2.2.9 内存分配回调函数
 
-	The hook variables are declared in `malloc.h'.  
-	这些钩子变量在malloc.h中声明。
+The GNU C Library lets you modify the behavior of ‘malloc’, ‘realloc’,
+and ‘free’ by specifying appropriate hook functions.  You can use these
+hooks to help you debug programs that use dynamic memory allocation, for
+example.
+GNU C库允许通过制定特定的回调函数来改变malloc,realloc和free的行为。你可以使用这些方法来定位问题。
 
-	-- Variable: __malloc_hook
-		The value of this variable is a pointer to the function that `malloc' uses whenever it is called.  You should define this function to look like `malloc'; that is, like:
-		此变量是一个指向malloc函数使用的回调函数。类似malloc应该像如下定义函数：
+   The hook variables are declared in ‘malloc.h’.
+   这些钩子变量在malloc.h中声明。
+
+ -- Variable: __malloc_hook
+
+     The value of this variable is a pointer to the function that
+     ‘malloc’ uses whenever it is called.  You should define this
+     function to look like ‘malloc’; that is, like:
+     
+     此变量是一个指向malloc函数使用的回调函数。类似malloc应该像如下定义函数：
 
           void *FUNCTION (size_t SIZE, const void *CALLER)
 
-		The value of CALLER is the return address found on the stack when the `malloc' function was called.  This value allows you to trace the memory consumption of the program.
-		调用者的值是在栈上，是在malloc被调用的时候的返回地址。此值允许跟踪消耗地址的程序。
+     The value of CALLER is the return address found on the stack when
+     the ‘malloc’ function was called.  This value allows you to trace
+     the memory consumption of the program.
+     
+     调用者的值是在栈上，是在malloc被调用的时候的返回地址。此值允许跟踪消耗地址的程序。
 
-	-- Variable: __realloc_hook
-		The value of this variable is a pointer to function that `realloc' uses whenever it is called.  You should define this function to look like `realloc'; that is, like:
-		此变量是一个指向realloc函数使用的回调函数。类似realloc应该像如下定义函数：
+ -- Variable: __realloc_hook
+
+     The value of this variable is a pointer to function that ‘realloc’
+     uses whenever it is called.  You should define this function to
+     look like ‘realloc’; that is, like:
+     
+     此变量是一个指向realloc函数使用的回调函数。类似realloc应该像如下定义函数：
 
           void *FUNCTION (void *PTR, size_t SIZE, const void *CALLER)
 
-		The value of CALLER is the return address found on the stack when the `realloc' function was called.  This value allows you to trace the memory consumption of the program.
-		调用者的值是在栈上，是在realloc被调用的时候的返回地址。此值允许跟踪消耗地址的程序。
+     The value of CALLER is the return address found on the stack when
+     the ‘realloc’ function was called.  This value allows you to trace
+     the memory consumption of the program.
+     
+     调用者的值是在栈上，是在realloc被调用的时候的返回地址。此值允许跟踪消耗地址的程序。
 
-	-- Variable: __free_hook
-		The value of this variable is a pointer to function that `free' uses whenever it is called.  You should define this function to look like `free'; that is, like:
-		此变量是一个指向free函数使用的回调函数。类似free应该像如下定义函数：
+ -- Variable: __free_hook
+
+     The value of this variable is a pointer to function that ‘free’
+     uses whenever it is called.  You should define this function to
+     look like ‘free’; that is, like:
+     
+     此变量是一个指向free函数使用的回调函数。类似free应该像如下定义函数：
 
           void FUNCTION (void *PTR, const void *CALLER)
 
-		The value of CALLER is the return address found on the stack when the `free' function was called.  This value allows you to trace the memory consumption of the program.
-		调用者的值是在栈上，是在free被调用的时候的返回地址。此值允许跟踪消耗地址的程序。
+     The value of CALLER is the return address found on the stack when
+     the ‘free’ function was called.  This value allows you to trace the
+     memory consumption of the program.
+     
+     调用者的值是在栈上，是在free被调用的时候的返回地址。此值允许跟踪消耗地址的程序。
 
-	-- Variable: __memalign_hook
-		The value of this variable is a pointer to function that `memalign' uses whenever it is called.  You should define this function to look like `memalign'; that is, like:
-		此变量是一个指向memalign函数使用的回调函数。类似memalign应该像如下定义函数：
+ -- Variable: __memalign_hook
+
+     The value of this variable is a pointer to function that
+     ‘aligned_alloc’, ‘memalign’, ‘posix_memalign’ and ‘valloc’ use
+     whenever they are called.  You should define this function to look
+     like ‘aligned_alloc’; that is, like:
+     
+     此变量是一个指向memalign函数使用的回调函数。类似memalign应该像如下定义函数：
 
           void *FUNCTION (size_t ALIGNMENT, size_t SIZE, const void *CALLER)
 
-		The value of CALLER is the return address found on the stack when the `memalign' function was called.  This value allows you to trace the memory consumption of the program.
-		调用者的值是在栈上，是在free被调用的时候的返回地址。此值允许跟踪消耗地址的程序。
+     The value of CALLER is the return address found on the stack when
+     the ‘aligned_alloc’, ‘memalign’, ‘posix_memalign’ or ‘valloc’
+     functions are called.  This value allows you to trace the memory
+     consumption of the program.
+     
+     调用者的值是在栈上，是在free被调用的时候的返回地址。此值允许跟踪消耗地址的程序。
 
-	You must make sure that the function you install as a hook for one of these functions does not call that function recursively without restoring the old value of the hook first!  Otherwise, your program will get stuck in an infinite recursion.  Before calling the function recursively, one should make sure to restore all the hooks to their previous value.  When coming back from the recursive call, all the hooks should be resaved since a hook might modify itself.
-	要保证在给这些函数注册回调的时候不会递归执行。否则，程序将会无限循环下去。在递归调用此函数，要保证每一层的回调函数可以恢复。当从递归调用返回的时候，所有的回调都要再次保存，因为回调函数可能会修改其自身。
+   You must make sure that the function you install as a hook for one of
+these functions does not call that function recursively without
+restoring the old value of the hook first!  Otherwise, your program will
+get stuck in an infinite recursion.  Before calling the function
+recursively, one should make sure to restore all the hooks to their
+previous value.  When coming back from the recursive call, all the hooks
+should be resaved since a hook might modify itself.
+   要保证在给这些函数注册回调的时候不会递归执行。否则，程序将会无限循环下去。在递归调用此函数，要保证每一层的回调函数可以恢复。当从递归调用返回的时候，所有的回调都要再次保存，因为回调函数可能会修改其自身。
+
+   An issue to look out for is the time at which the malloc hook
+functions can be safely installed.  If the hook functions call the
+malloc-related functions recursively, it is necessary that malloc has
+already properly initialized itself at the time when ‘__malloc_hook’
+etc.  is assigned to.  On the other hand, if the hook functions provide
+a complete malloc implementation of their own, it is vital that the
+hooks are assigned to _before_ the very first ‘malloc’ call has
+completed, because otherwise a chunk obtained from the ordinary,
+un-hooked malloc may later be handed to ‘__free_hook’, for example.
+
+   Here is an example showing how to use ‘__malloc_hook’ and
+‘__free_hook’ properly.  It installs a function that prints out
+information every time ‘malloc’ or ‘free’ is called.  We just assume
+here that ‘realloc’ and ‘memalign’ are not used in our program.
+
 
 	-- Variable: __malloc_initialize_hook
 		The value of this variable is a pointer to a function that is called once when the malloc implementation is initialized.  This is a weak variable, so it can be overridden in the application with a definition like the following:
@@ -4198,163 +5336,286 @@ malloc::.
        ...
      }
 
-	The `mcheck' function (*note Heap Consistency Checking::) works by installing such hooks.
-	mcheck函数（参见堆栈一致性检查）将注册这些回调。
+   The ‘mcheck’ function (*note Heap Consistency Checking::) works by
+installing such hooks.
+   
+   mcheck函数（参见堆栈一致性检查）将注册这些回调。
 
-3.2.2.11 Statistics for Memory Allocation with `malloc'
+3.2.3.10 Statistics for Memory Allocation with ‘malloc’
 .......................................................
 3.2.2.11 malloc内存分配的统计
 
-	You can get information about dynamic memory allocation by calling the `mallinfo' function.  This function and its associated data type are declared in `malloc.h'; they are an extension of the standard SVID/XPG version.  
-	你可以通过调用mallinfo来获取动态内存分配的信息。此函数及其涉及到的数据结构在malloc.h中声明，这是标准SVID/XPG的扩展。
+You can get information about dynamic memory allocation by calling the
+‘mallinfo’ function.  This function and its associated data type are
+declared in ‘malloc.h’; they are an extension of the standard SVID/XPG
+version.
 
-	-- Data Type: struct mallinfo
-		This structure type is used to return information about the dynamic memory allocator.  It contains the following members:
-		此数据类型用来返回动态内存分配器的信息。包含如下成员：
+你可以通过调用mallinfo来获取动态内存分配的信息。此函数及其涉及到的数据结构在malloc.h中声明，这是标准SVID/XPG的扩展。
 
-		`int arena'
-			This is the total size of memory allocated with `sbrk' by `malloc', in bytes.
-			这是malloc调用sbrk分配的内存的总大小。
+ -- Data Type: struct mallinfo
+     This structure type is used to return information about the dynamic
+     memory allocator.  It contains the following members:
+     
+     此数据类型用来返回动态内存分配器的信息。包含如下成员：
 
-		`int ordblks'
-			This is the number of chunks not in use.  (The memory allocator internally gets chunks of memory from the operating system, and then carves them up to satisfy individual `malloc' requests; see *note Efficiency and Malloc::.)
-			此为未使用内存块的数量。（内存分配器内部从操作系统获取内存块，然后供malloc申请使用；参见Efficiency and Malloc
+     ‘int arena’
+          This is the total size of memory allocated with ‘sbrk’ by
+          ‘malloc’, in bytes.
+	  
+	  这是malloc调用sbrk分配的内存的总大小。
 
-		`int smblks'
-			This field is unused.
-			此域未使用。
+     ‘int ordblks’
+          This is the number of chunks not in use.  (The memory
+          allocator internally gets chunks of memory from the operating
+          system, and then carves them up to satisfy individual ‘malloc’
+          requests; *note The GNU Allocator::.)
+	  
+	  此为未使用内存块的数量。（内存分配器内部从操作系统获取内存块，然后供malloc申请使用；参见Efficiency and Malloc
 
-		`int hblks'
-			This is the total number of chunks allocated with `mmap'.
-			mmap分配的总块数。
+     ‘int smblks’
+          This field is unused.
+     
+     此域未使用。
 
-		`int hblkhd'
-			This is the total size of memory allocated with `mmap', in bytes.
-			mmap分配的内存，以字节计算
+     ‘int hblks’
+          This is the total number of chunks allocated with ‘mmap’.
+     
+     mmap分配的总块数。
 
-		`int usmblks'
-			This field is unused.
-			此域未使用
+     ‘int hblkhd’
+          This is the total size of memory allocated with ‘mmap’, in
+          bytes.
+	  
+	  mmap分配的内存，以字节计算
 
-		`int fsmblks'
-			This field is unused.
-			此域未使用。
+     ‘int usmblks’
+          This field is unused and always 0.
+	  
+	  此域未使用
 
-		`int uordblks'
-			This is the total size of memory occupied by chunks handed out by `malloc'.
-			malloc分发的占用的内存块儿大小
+     ‘int fsmblks’
+          This field is unused.
+	  
+	  此域未使用。
 
-		`int fordblks'
-			This is the total size of memory occupied by free (not in use) chunks.
-			未使用内存占用的内存块的大小
+     ‘int uordblks’
+          This is the total size of memory occupied by chunks handed out
+          by ‘malloc’.
+	  
+	  malloc分发的占用的内存块儿大小
 
-		`int keepcost'
-			This is the size of the top-most releasable chunk that normally borders the end of the heap (i.e., the high end of the virtual address space's data segment).
-			这部分通常是紧挨着堆的底部的最可能（最有理由释放的）内存块（例如，虚拟地址空间的数据高端区）
+     ‘int fordblks’
+          This is the total size of memory occupied by free (not in use)
+          chunks.
+	  
+	  未使用内存占用的内存块的大小
 
-	-- Function: struct mallinfo mallinfo (void)
-		This function returns information about the current dynamic memory usage in a structure of type `struct mallinfo'.
-		此函数通过数据结构mallinfo来返回当前使用的动态内存信息。
+     ‘int keepcost’
+          This is the size of the top-most releasable chunk that
+          normally borders the end of the heap (i.e., the high end of
+          the virtual address space’s data segment).
+	  
+	  这部分通常是紧挨着堆的底部的最可能（最有理由释放的）内存块（例如，虚拟地址空间的数据高端区）
 
-3.2.2.12 Summary of `malloc'-Related Functions
+ -- Function: struct mallinfo mallinfo (void)
+
+     Preliminary: | MT-Unsafe init const:mallopt | AS-Unsafe init lock |
+     AC-Unsafe init lock | *Note POSIX Safety Concepts::.
+
+     This function returns information about the current dynamic memory
+     usage in a structure of type ‘struct mallinfo’.
+     
+     此函数通过数据结构mallinfo来返回当前使用的动态内存信息。
+
+3.2.3.11 Summary of ‘malloc’-Related Functions
 3.2.2.11 malloc相关函数的小结
 ..............................................
 
-Here is a summary of the functions that work with `malloc':
+Here is a summary of the functions that work with ‘malloc’:
+
 如下是使用malloc函数的小结
 
-	`void *malloc (size_t SIZE)'
-		Allocate a block of SIZE bytes.  *Note Basic Allocation::.
-		分配SIZE字节的内存块。 *参见Basic Allocation::
+‘void *malloc (size_t SIZE)’
+     Allocate a block of SIZE bytes.  *Note Basic Allocation::.
+     分配SIZE字节的内存块。 *参见Basic Allocation::
 
-	`void free (void *ADDR)'
-		Free a block previously allocated by `malloc'.  *Note Freeing after Malloc::.
-		释放之前使用malloc分配的内存块。 *参考 Freeing after Malloc::
+‘void free (void *ADDR)’
+     Free a block previously allocated by ‘malloc’.  *Note Freeing after
+     Malloc::.
+     
+     释放之前使用malloc分配的内存块。 *参考 Freeing after Malloc::
 
-	`void *realloc (void *ADDR, size_t SIZE)'
-		Make a block previously allocated by `malloc' larger or smaller, possibly by copying it to a new location.  *Note Changing Block Size::.
-		扩大或者缩小之前malloc分配的内存块，可能将其拷贝到新的地址。
+‘void *realloc (void *ADDR, size_t SIZE)’
+     Make a block previously allocated by ‘malloc’ larger or smaller,
+     possibly by copying it to a new location.  *Note Changing Block
+     Size::.
+     
+     扩大或者缩小之前malloc分配的内存块，可能将其拷贝到新的地址。
 
-	`void *calloc (size_t COUNT, size_t ELTSIZE)'
-		Allocate a block of COUNT * ELTSIZE bytes using `malloc', and set its contents to zero.  *Note Allocating Cleared Space::.
-		分配，COUNT*ELSIZE字节的内存块，并将其内容置为零。 *参见 Allocating Cleared Space::
+‘void *reallocarray (void *PTR, size_t NMEMB, size_t SIZE)’
+     Change the size of a block previously allocated by ‘malloc’ to
+     ‘NMEMB * SIZE’ bytes as with ‘realloc’.  *Note Changing Block
+     Size::.
 
-	`void *valloc (size_t SIZE)'
-		Allocate a block of SIZE bytes, starting on a page boundary. *Note Aligned Memory Blocks::.
-		分配SIZE字节的内存块，从一个页边界开始。 *参见对齐的内存块::
+‘void *calloc (size_t COUNT, size_t ELTSIZE)’
+     Allocate a block of COUNT * ELTSIZE bytes using ‘malloc’, and set
+     its contents to zero.  *Note Allocating Cleared Space::.
+     
+     分配，COUNT*ELSIZE字节的内存块，并将其内容置为零。 *参见 Allocating Cleared Space::
 
-	`void *memalign (size_t SIZE, size_t BOUNDARY)'
-		Allocate a block of SIZE bytes, starting on an address that is a multiple of BOUNDARY.  *Note Aligned Memory Blocks::.
-		分配SIZE字节的内存块，从一个多边界地址开始. *参考 Aligned Memory Blocks::
+‘void *valloc (size_t SIZE)’
+     Allocate a block of SIZE bytes, starting on a page boundary.  *Note
+     Aligned Memory Blocks::.
+     
+     分配SIZE字节的内存块，从一个页边界开始。 *参见对齐的内存块::
+‘void *aligned_alloc (size_t SIZE, size_t ALIGNMENT)’
+     Allocate a block of SIZE bytes, starting on an address that is a
+     multiple of ALIGNMENT.  *Note Aligned Memory Blocks::.
 
-	`int mallopt (int PARAM, int VALUE)'
-		Adjust a tunable parameter.  *Note Malloc Tunable Parameters::.
-		调整一个可调节的参数。 *参考 Malloc Tunable Parameters::
+‘int posix_memalign (void **MEMPTR, size_t ALIGNMENT, size_t SIZE)’
+     Allocate a block of SIZE bytes, starting on an address that is a
+     multiple of ALIGNMENT.  *Note Aligned Memory Blocks::.
 
-	`int mcheck (void (*ABORTFN) (void))'
-		Tell `malloc' to perform occasional consistency checks on dynamically allocated memory, and to call ABORTFN when an inconsistency is found.  *Note Heap Consistency Checking::.
-		让malloc临时在动态分配的内存上执行完整性检查，同时调用ABORTFN来处理不一致性的问题。 *参考 Heap Consistency Checking::
+‘void *memalign (size_t SIZE, size_t BOUNDARY)’
+     Allocate a block of SIZE bytes, starting on an address that is a
+     multiple of BOUNDARY.  *Note Aligned Memory Blocks::.
+     
+     分配SIZE字节的内存块，从一个多边界地址开始. *参考 Aligned Memory Blocks::
 
-	`void *(*__malloc_hook) (size_t SIZE, const void *CALLER)'
-		A pointer to a function that `malloc' uses whenever it is called.
-		指向malloc调用的回调函数。
+‘int mallopt (int PARAM, int VALUE)’
+     Adjust a tunable parameter.  *Note Malloc Tunable Parameters::.
+     
+     调整一个可调节的参数。 *参考 Malloc Tunable Parameters::
 
-	`void *(*__realloc_hook) (void *PTR, size_t SIZE, const void *CALLER)'
-		A pointer to a function that `realloc' uses whenever it is called.
-		指向realloc调用的回调函数。
+‘int mcheck (void (*ABORTFN) (void))’
+     Tell ‘malloc’ to perform occasional consistency checks on
+     dynamically allocated memory, and to call ABORTFN when an
+     inconsistency is found.  *Note Heap Consistency Checking::.
+     
+     让malloc临时在动态分配的内存上执行完整性检查，同时调用ABORTFN来处理不一致性的问题。 *参考 Heap Consistency Checking::
 
-	`void (*__free_hook) (void *PTR, const void *CALLER)'
-		A pointer to a function that `free' uses whenever it is called.
-		指向free调用的回调函数。
+‘void *(*__malloc_hook) (size_t SIZE, const void *CALLER)’
+     A pointer to a function that ‘malloc’ uses whenever it is called.
+     
+     指向malloc调用的回调函数。
 
-	`void (*__memalign_hook) (size_t SIZE, size_t ALIGNMENT, const void *CALLER)'
-		A pointer to a function that `memalign' uses whenever it is called.
-		指向memalign调用的回调函数。
+‘void *(*__realloc_hook) (void *PTR, size_t SIZE, const void *CALLER)’
+     A pointer to a function that ‘realloc’ uses whenever it is called.
+     
+     指向realloc调用的回调函数。
 
-	`struct mallinfo mallinfo (void)'
-		Return information about the current dynamic memory usage.  *Note Statistics of Malloc::.
-		返回当前动态内存使用情况的信息。 *参考 Statistics of Malloc::
+‘void (*__free_hook) (void *PTR, const void *CALLER)’
+     A pointer to a function that ‘free’ uses whenever it is called.
+     
+     指向free调用的回调函数。
 
-3.2.3 Allocation Debugging
-3.2.3 调试分配
+‘void (*__memalign_hook) (size_t SIZE, size_t ALIGNMENT, const void *CALLER)’
+     A pointer to a function that ‘aligned_alloc’, ‘memalign’,
+     ‘posix_memalign’ and ‘valloc’ use whenever they are called.
+     
+     指向memalign调用的回调函数。
+
+‘struct mallinfo mallinfo (void)’
+     Return information about the current dynamic memory usage.  *Note
+     Statistics of Malloc::.
+     
+     返回当前动态内存使用情况的信息。 *参考 Statistics of Malloc::
+
+3.2.4 Allocation Debugging
+
+3.2.4 调试分配
 --------------------------
 
-	A complicated task when programming with languages which do not use garbage collected dynamic memory allocation is to find memory leaks. Long running programs must assure that dynamically allocated objects are freed at the end of their lifetime.  If this does not happen the system runs out of memory, sooner or later.
-	采用不使用动态内存垃圾回机制的语言后，查找内存泄露是一个非常复杂的工作。长期运行的程序要保证动态内存的在其生命周期结束之前能够释放。如果无法及时释放，系统迟早会把内存耗光。
+A complicated task when programming with languages which do not use
+garbage collected dynamic memory allocation is to find memory leaks.
+Long running programs must ensure that dynamically allocated objects are
+freed at the end of their lifetime.  If this does not happen the system
+runs out of memory, sooner or later.
 
-	The `malloc' implementation in the GNU C library provides some simple means to detect such leaks and obtain some information to find the location.  To do this the application must be started in a special mode which is enabled by an environment variable.  There are no speed penalties for the program if the debugging mode is not enabled.
-	GNU C库的malloc实现提供了一些简单的方法来检测内存泄漏并获得一些定位的信息。要这样做，应用程序必须通过修改环境变量来使能一种特殊模式。这种模式不会给程序带来速度上的损耗。
+采用不使用动态内存垃圾回机制的语言后，查找内存泄露是一个非常复杂的工作。长期运行的程序要保证动态内存的在其生命周期结束之前能够释放。如果无法及时释放，系统迟早会把内存耗光。
 
-3.2.3.1 How to install the tracing functionality
-3.2.3.1 如何安装tracing功能
+   The ‘malloc’ implementation in the GNU C Library provides some simple
+means to detect such leaks and obtain some information to find the
+location.  To do this the application must be started in a special mode
+which is enabled by an environment variable.  There are no speed
+penalties for the program if the debugging mode is not enabled.
+
+   GNU C库的malloc实现提供了一些简单的方法来检测内存泄漏并获得一些定位的信息。要这样做，应用程序必须通过修改环境变量来使能一种特殊模式。这种模式不会给程序带来速度上的损耗。
+
+3.2.4.1 How to install the tracing functionality
+
+3.2.4.1 如何安装tracing功能
 ................................................
 
-	-- Function: void mtrace (void)
-		When the `mtrace' function is called it looks for an environment variable named `MALLOC_TRACE'.  This variable is supposed to contain a valid file name.  The user must have write access.  If the file already exists it is truncated.  If the environment variable is not set or it does not name a valid file which can be opened for writing nothing is done.  The behavior of `malloc' etc. is not changed.  For obvious reasons this also happens if the application is installed with the SUID or SGID bit set.
-		当mtrace函数调用的时候，它将查找叫做MALLOC_TRACE的环境变量。此变量应当包含一个有效的文件名。用户有写权限。如果此文件存在，其内容将被截取。如果环境变量没有设定，或者文件名无效无法写入内容。malloc等函数的行为将不会变化。由于明显的原因，当应用程序设置了SUID或者SGID效果相同。
+ -- Function: void mtrace (void)
+ 
+     Preliminary: | MT-Unsafe env race:mtrace const:malloc_hooks init |
+     AS-Unsafe init heap corrupt lock | AC-Unsafe init corrupt lock fd
+     mem | *Note POSIX Safety Concepts::.
 
-		If the named file is successfully opened, `mtrace' installs special handlers for the functions `malloc', `realloc', and `free' (*note Hooks for Malloc::).  From then on, all uses of these functions are traced and protocolled into the file.  There is now of course a speed penalty for all calls to the traced functions so tracing should not be enabled during normal use.
-		如果此文件成功打开，mtrace为malloc,realloc和free 安装了特定的回调函数（*参考 Hook for Malloc::)。此后，所有此函数的使用都可以被追踪同时按照协议写入文件。从现在开始，由于需要跟踪所有调用的函数，速度会有影响。因此正常使用的时候函数追踪功能不能打开。
+ 
+     When the ‘mtrace’ function is called it looks for an environment
+     variable named ‘MALLOC_TRACE’.  This variable is supposed to
+     contain a valid file name.  The user must have write access.  If
+     the file already exists it is truncated.  If the environment
+     variable is not set or it does not name a valid file which can be
+     opened for writing nothing is done.  The behavior of ‘malloc’ etc.
+     is not changed.  For obvious reasons this also happens if the
+     application is installed with the SUID or SGID bit set.
+     
+     当mtrace函数调用的时候，它将查找叫做MALLOC_TRACE的环境变量。此变量应当包含一个有效的文件名。用户有写权限。如果此文件存在，其内容将被截取。如果环境变量没有设定，或者文件名无效无法写入内容。malloc等函数的行为将不会变化。由于明显的原因，当应用程序设置了SUID或者SGID效果相同。
 
-		This function is a GNU extension and generally not available on other systems.  The prototype can be found in `mcheck.h'.
-		此函数是一个GNU扩展通常在其他系统中是不支持的。函数原型在"mcheck.h"中。
+     If the named file is successfully opened, ‘mtrace’ installs special
+     handlers for the functions ‘malloc’, ‘realloc’, and ‘free’ (*note
+     Hooks for Malloc::).  From then on, all uses of these functions are
+     traced and protocolled into the file.  There is now of course a
+     speed penalty for all calls to the traced functions so tracing
+     should not be enabled during normal use.
 
-	-- Function: void muntrace (void)
-		The `muntrace' function can be called after `mtrace' was used to enable tracing the `malloc' calls.  If no (successful) call of `mtrace' was made `muntrace' does nothing.
-		muntrace函数能够在mtrace调用后，用来使能跟踪malloc调用功能。如果mtrace没有调用（或者调用失败），muntrace则没有功能。
+     如果此文件成功打开，mtrace为malloc,realloc和free 安装了特定的回调函数（*参考 Hook for Malloc::)。此后，所有此函数的使用都可以被追踪同时按照协议写入文件。从现在开始，由于需要跟踪所有调用的函数，速度会有影响。因此正常使用的时候函数追踪功能不能打开。
 
-		Otherwise it deinstalls the handlers for `malloc', `realloc', and `free' and then closes the protocol file.  No calls are protocolled anymore and the program runs again at full speed.
-		然后其为malloc,realloc和free函数取消注册的回调函数并关闭文件。没有函数再访问此文件并且程序又再全速运行。
+     This function is a GNU extension and generally not available on
+     other systems.  The prototype can be found in ‘mcheck.h’.
+     
+     此函数是一个GNU扩展通常在其他系统中是不支持的。函数原型在"mcheck.h"中。
+
+ -- Function: void muntrace (void)
+
+     Preliminary: | MT-Unsafe race:mtrace const:malloc_hooks locale |
+     AS-Unsafe corrupt heap | AC-Unsafe corrupt mem lock fd | *Note
+     POSIX Safety Concepts::.
+
+     POSIX Safety Concepts::.
+
+     The ‘muntrace’ function can be called after ‘mtrace’ was used to
+     enable tracing the ‘malloc’ calls.  If no (successful) call of
+     ‘mtrace’ was made ‘muntrace’ does nothing.
+     
+     muntrace函数能够在mtrace调用后，用来使能跟踪malloc调用功能。如果mtrace没有调用（或者调用失败），muntrace则没有功能。
+
+     Otherwise it deinstalls the handlers for ‘malloc’, ‘realloc’, and
+     ‘free’ and then closes the protocol file.  No calls are protocolled
+     anymore and the program runs again at full speed.
+     
+     然后其为malloc,realloc和free函数取消注册的回调函数并关闭文件。没有函数再访问此文件并且程序又再全速运行。
 		
-		This function is a GNU extension and generally not available on other systems.  The prototype can be found in `mcheck.h'.
-		此函数是一个GNU扩展通常在其他系统中是不支持的。函数原型在"mcheck.h"中
+     This function is a GNU extension and generally not available on
+     other systems.  The prototype can be found in ‘mcheck.h’.
+     
+     此函数是一个GNU扩展通常在其他系统中是不支持的。函数原型在"mcheck.h"中
 
-3.2.3.2 Example program excerpts
+3.2.4.2 Example program excerpts
 3.2.3.2 程序小样节选
 ................................
 
-	Even though the tracing functionality does not influence the runtime behavior of the program it is not a good idea to call `mtrace' in all programs.  Just imagine that you debug a program using `mtrace' and all other programs used in the debugging session also trace their `malloc' calls.  The output file would be the same for all programs and thus is unusable.  Therefore one should call `mtrace' only if compiled for debugging.  A program could therefore start like this:
-	尽管跟踪功能并不影响程序运行时的行为，但在所有程序中都调用mtrace并不是一个好注意。想象一下当你使用mtrace来跟踪程序并且在此调试进程中用到的其他程序的malloc调用也被同时跟踪。输出文件将和所有程序有关也就变得没有用处了。因此，程序仅能在调试时编译使用mtrace。程序可以像这样：
+Even though the tracing functionality does not influence the runtime
+behavior of the program it is not a good idea to call ‘mtrace’ in all
+programs.  Just imagine that you debug a program using ‘mtrace’ and all
+other programs used in the debugging session also trace their ‘malloc’
+calls.  The output file would be the same for all programs and thus is
+unusable.  Therefore one should call ‘mtrace’ only if compiled for
+debugging.  A program could therefore start like this:
+尽管跟踪功能并不影响程序运行时的行为，但在所有程序中都调用mtrace并不是一个好注意。想象一下当你使用mtrace来跟踪程序并且在此调试进程中用到的其他程序的malloc调用也被同时跟踪。输出文件将和所有程序有关也就变得没有用处了。因此，程序仅能在调试时编译使用mtrace。程序可以像这样：
 
      #include <mcheck.h>
 
@@ -4367,15 +5628,31 @@ Here is a summary of the functions that work with `malloc':
        ...
      }
 
-	This is all what is needed if you want to trace the calls during the whole runtime of the program.  Alternatively you can stop the tracing at any time with a call to `muntrace'.  It is even possible to restart the tracing again with a new call to `mtrace'.  But this can cause unreliable results since there may be calls of the functions which are not called.  Please note that not only the application uses the traced functions, also libraries (including the C library itself) use these functions.
-	这样就可以满足在运行时跟踪调用。同时可以调用muntrace来结束跟踪。甚至可以调用mtrace来重新跟踪。但，这由于不能够跟踪到所有函数的调用，因此此方法并不是可靠。请注意并不是只有应用程序使用可跟踪函数集，库函数（包括C库函数本身）也都使用这些函数集。
+   This is all that is needed if you want to trace the calls during the
+whole runtime of the program.  Alternatively you can stop the tracing at
+any time with a call to ‘muntrace’.  It is even possible to restart the
+tracing again with a new call to ‘mtrace’.  But this can cause
+unreliable results since there may be calls of the functions which are
+not called.  Please note that not only the application uses the traced
+functions, also libraries (including the C library itself) use these
+functions.
 
-	This last point is also why it is no good idea to call `muntrace' before the program terminated.  The libraries are informed about the termination of the program only after the program returns from `main' or calls `exit' and so cannot free the memory they use before this time.
-	最后在程序结束前就调用muntrace并不是好的方法。
+   这样就可以满足在运行时跟踪调用。同时可以调用muntrace来结束跟踪。甚至可以调用mtrace来重新跟踪。但，这由于不能够跟踪到所有函数的调用，因此此方法并不是可靠。请注意并不是只有应用程序使用可跟踪函数集，库函数（包括C库函数本身）也都使用这些函数集。
 
-	So the best thing one can do is to call `mtrace' as the very first function in the program and never call `muntrace'.  So the program traces almost all uses of the `malloc' functions (except those calls which are executed by constructors of the program or used libraries).
+   This last point is also why it is not a good idea to call ‘muntrace’
+before the program terminates.  The libraries are informed about the
+termination of the program only after the program returns from ‘main’ or
+calls ‘exit’ and so cannot free the memory they use before this time.
 
-3.2.3.3 Some more or less clever ideas
+   最后在程序结束前就调用muntrace并不是好的方法。
+
+   So the best thing one can do is to call ‘mtrace’ as the very first
+function in the program and never call ‘muntrace’.  So the program
+traces almost all uses of the ‘malloc’ functions (except those calls
+which are executed by constructors of the program or used libraries).
+
+
+3.2.4.3 Some more or less clever ideas
 ......................................
 3.2.3.3 一些好的想法
 
@@ -6552,30 +7829,29 @@ respectively, and the array elements are referred to as “bytes” and
 
    In many cases, there are both ‘mem’ and ‘str’/‘wcs’ versions of a
 function.  The one that is more appropriate to use depends on the exact
-situation.  When your program is manipulating arbitrary arrays or
-blocks of storage, then you should always use the `mem' functions.  On
-the other hand, when you are manipulating null-terminated strings it is
-usually more convenient to use the `str'/`wcs' functions, unless you
-already know the length of the string in advance.  The `wmem' functions
-should be used for wide character arrays with known size.
+situation.  When your program is manipulating arbitrary arrays or blocks
+of storage, then you should always use the ‘mem’ functions.  On the
+other hand, when you are manipulating strings it is usually more
+convenient to use the ‘str’/‘wcs’ functions, unless you already know the
+length of the string in advance.  The ‘wmem’ functions should be used
+for wide character arrays with known size.
 
    Some of the memory and string functions take single characters as
-arguments.  Since a value of type `char' is automatically promoted into
-an value of type `int' when used as a parameter, the functions are
-declared with `int' as the type of the parameter in question.  In case
-of the wide character function the situation is similarly: the
-parameter type for a single wide character is `wint_t' and not
-`wchar_t'.  This would for many implementations not be necessary since
-the `wchar_t' is large enough to not be automatically promoted, but
-since the ISO C standard does not require such a choice of types the
-`wint_t' type is used.
+arguments.  Since a value of type ‘char’ is automatically promoted into
+a value of type ‘int’ when used as a parameter, the functions are
+declared with ‘int’ as the type of the parameter in question.  In case
+of the wide character functions the situation is similar: the parameter
+type for a single wide character is ‘wint_t’ and not ‘wchar_t’.  This
+would for many implementations not be necessary since ‘wchar_t’ is large
+enough to not be automatically promoted, but since the ISO C standard
+does not require such a choice of types the ‘wint_t’ type is used.
 
 5.3 String Length
 =================
 5.3 字符串长度
 
-You can get the length of a string using the `strlen' function.  This
-function is declared in the header file `string.h'.  
+You can get the length of a string using the ‘strlen’ function.  This
+function is declared in the header file ‘string.h’.
 
  -- Function: size_t strlen (const char *S)
 
@@ -6684,8 +7960,8 @@ function is declared in the header file `string.h'.
 
      This function is a GNU extension and is declared in ‘wchar.h’.
 
-5.4 Copying and Concatenation
-=============================
+5.4 Copying Strings and Arrays
+==============================
 5.4 拷贝和连接
 
 You can use the functions described in this section to copy the contents
